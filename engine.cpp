@@ -1,0 +1,214 @@
+#include "engine.h"
+#include <iostream>
+
+#include <algorithm>
+
+using namespace std;
+
+Engine::Engine()
+{
+    //Kings
+    King* white_king = new King('K', "white");
+    white_king->setCoords(4,7);
+    board.push_back(white_king);
+
+    King* black_king = new King('K', "black");
+    black_king->setCoords(4,0);
+    board.push_back(black_king);
+/*
+    //Pawns
+    for (int i = 0; i < 2; i++)
+    {
+        for (int x = 0; x < 8; x++)
+        {
+            if (i < 1)
+            {
+                Pawn* pawn = new Pawn('P', "white");
+                pawn->setCoords(x,6);
+                board.push_back(pawn);
+            }
+            else
+            {
+                Pawn* pawn = new Pawn('P', "black");
+                pawn->setCoords(x,1);
+                board.push_back(pawn);
+            }
+        }
+    }
+
+
+    //Bishops
+    Bishop* white_bishop_b = new Bishop('B', "white");
+    white_bishop_b->setCoords(2,7);
+    board.push_back(white_bishop_b);
+
+    Bishop* white_bishop_w = new Bishop('B', "white");
+    white_bishop_w->setCoords(5,7);
+    board.push_back(white_bishop_w);
+
+    Bishop* black_bishop_w = new Bishop('B', "black");
+    black_bishop_w->setCoords(2,0);
+    board.push_back(black_bishop_w);
+
+    Bishop* black_bishop_b = new Bishop('B', "black");
+    black_bishop_b->setCoords(5,0);
+    board.push_back(black_bishop_b);
+
+
+    //Queens
+    Queen* white_queen = new Queen('Q', "white");
+    white_queen->setCoords(3,7);
+    board.push_back(white_queen);
+*/
+    Queen* black_queen = new Queen('Q', "black");
+    black_queen->setCoords(3,0);
+    board.push_back(black_queen);
+
+
+    //Rooks
+    Rook* white_rook_w = new Rook('R', "white");
+    white_rook_w->setCoords(7,7);
+    board.push_back(white_rook_w);
+
+    Rook* white_rook_b = new Rook('R', "white");
+    white_rook_b->setCoords(0,7);
+    board.push_back(white_rook_b);
+
+    Rook* black_rook_w = new Rook('R', "black");
+    black_rook_w->setCoords(0,0);
+    board.push_back(black_rook_w);
+
+    Rook* black_rook_b = new Rook('R', "black");
+    black_rook_b->setCoords(7,0);
+    board.push_back(black_rook_b);
+
+}
+
+
+vector<Piece*> &Engine::getBoard()
+{
+    return board;
+}
+
+vector<pair<int,int>> Engine::getLegalMoves(Piece* selected)
+{
+    return selected->legalMoves(selected,selected->whereCanMove(),selected->canTake(),board);
+}
+
+void Engine::removePiece(Piece* piece)
+{
+    for (auto it = board.begin(); it != board.end(); it++)
+        {
+            if (*it == piece)
+            {
+                board.erase(it);
+                return;
+            }
+        }
+}
+
+
+bool Engine::isCheck(bool whosTurn)
+{
+
+    string color;
+    if (whosTurn == 0) color = "white";
+    else color = "black";
+
+
+    Piece* king;
+    for (int i = 0; i < board.size(); i++)
+    {
+        if (board[i]->getName() == 'K' && board[i]->getColor() == color)
+        {
+            king = board[i];
+            break;
+        }
+    }
+
+    for (int i = 0; i < board.size(); i++)
+    {
+        Piece* attackingPiece = board[i];
+
+        if (attackingPiece->getColor() == color) continue;
+
+        vector<pair<int, int>> attackingLM = attackingPiece->legalMoves(attackingPiece, attackingPiece->whereCanMove(), attackingPiece->canTake(), board);
+
+        for (auto move : attackingLM)
+        {
+            if (move == king->getCoords())
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+
+bool Engine::isCheckmate(bool whosTurn)
+{
+    string color;
+    if (whosTurn == 0) color = "white";
+    else color = "black";
+
+    Piece* king;
+    for (auto piece : board)
+    {
+        if (color == piece->getColor() && piece->getName() == 'K')
+        {
+            king = piece;
+            break;
+        }
+    }
+
+    vector<pair<int, int>> kingLegalMoves = king->legalMoves(king, king->whereCanMove(), king->canTake(), board);
+
+    if (kingLegalMoves.empty())
+    {
+        for (auto piece : board)
+        {
+            if (piece->getColor() == color && piece->getName() != 'K')
+            {
+                if (!piece->legalMoves(piece, piece->whereCanMove(), piece->canTake(), board).empty()) return false;
+            }
+        }
+
+        for (auto piece : board)
+        {
+            if (piece->getColor() != color && piece->getName() != 'K')
+            {
+                vector<pair<int, int>> attackingMoves = piece->legalMoves(piece, piece->whereCanMove(), piece->canTake(), board);
+                for (auto attackMove : attackingMoves)
+                {
+                    if (isTakingAttackingPiece(piece, attackMove, king)) return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+
+bool Engine::isTakingAttackingPiece(Piece* piece, pair<int, int> attackMove, Piece* king)
+{
+    for (auto attackingPiece : board)
+    {
+        if (attackingPiece->getColor() != piece->getColor() && attackingPiece->getName() != 'K')
+        {
+            vector<pair<int, int>> attackingMoves = attackingPiece->legalMoves(attackingPiece, attackingPiece->whereCanMove(), attackingPiece->canTake(), board);
+
+            if (find(attackingMoves.begin(), attackingMoves.end(), king->getCoords()) != attackingMoves.end())
+            {
+                if (attackMove == attackingPiece->getCoords()) return true;
+            }
+        }
+    }
+
+    return false;
+}
+
