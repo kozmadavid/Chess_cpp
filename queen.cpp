@@ -49,10 +49,9 @@ vector<pair<int,int>> Queen::whereCanMove() //Same as whereCanTake
 }
 
 
-vector<pair<int, int>> Queen::legalMoves(Piece* selected, vector<pair<int, int>> canMoveWhere, vector<pair<int, int>> canTake, vector<Piece*> board)
+void Queen::legalMoves(Piece* selected, vector<pair<int, int>> canMoveWhere, vector<pair<int, int>> canTake, vector<Piece*> board)
 {
-    vector<pair<int, int>> legalMoves;
-
+    emptyLegalMoves();
     vector<pair<int, int>> queenDirections = {{-1, 0}, {1, 0}, {0, -1}, {0, 1},
                                               {-1, -1}, {1, 1}, {-1, 1}, {1, -1}};
 
@@ -86,17 +85,15 @@ vector<pair<int, int>> Queen::legalMoves(Piece* selected, vector<pair<int, int>>
 
             if (blockedByOwnPiece) break;
 
-            legalMoves.push_back(make_pair(x, y));
+            _legalMoves.push_back(make_pair(x, y));
 
             if (canCaptureEnemy)
             {
-                legalMoves.push_back(make_pair(x, y));
+                _legalMoves.push_back(make_pair(x, y));
                 break;
             }
         }
     }
-
-    return legalMoves;
 }
 
 

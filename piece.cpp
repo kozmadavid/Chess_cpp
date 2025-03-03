@@ -1,4 +1,5 @@
 #include "piece.h"
+#include <iostream>
 
 using namespace std;
 
@@ -28,6 +29,26 @@ void Piece::setCoords(int x,int y)
 {
     coords.first = x;
     coords.second = y;
+}
+
+vector<pair<int,int>> Piece::getLegalMoves()
+{
+    return _legalMoves;
+}
+
+void Piece::setLegalMoves(vector<pair<int,int>> newLegalMoves)
+{
+    _legalMoves = newLegalMoves;
+}
+
+void Piece::legalMoves_Add(pair<int,int>newItem)
+{
+    _legalMoves.push_back(newItem);
+}
+
+void Piece::emptyLegalMoves()
+{
+    _legalMoves.erase(_legalMoves.begin(),_legalMoves.end());
 }
 
 

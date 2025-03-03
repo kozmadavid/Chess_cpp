@@ -43,10 +43,9 @@ vector<pair<int,int>> King::whereCanMove() //Same as whereCanTake
 }
 
 
-vector<pair<int,int>> King::legalMoves(Piece* selected, vector<pair<int,int>>canMoveWhere, vector<pair<int,int>>canTake, vector<Piece*> board)
+void King::legalMoves(Piece* selected, vector<pair<int,int>>canMoveWhere, vector<pair<int,int>>canTake, vector<Piece*> board)
 {
-    vector<pair<int,int>> legalMoves;
-
+    emptyLegalMoves();
     for (int i = canTake.size() - 1; i >= 0; i--)
     {
         bool found = false;
@@ -64,20 +63,20 @@ vector<pair<int,int>> King::legalMoves(Piece* selected, vector<pair<int,int>>can
     }
 
     Piece* king = selected;
-
     for (int i = canTake.size() - 1; i >= 0; i--)
     {
-        auto originalCoordinates = king->getCoords();
+        pair<int,int> originalCoordinates = king->getCoords();
         king->setCoords(canTake[i].first, canTake[i].second);
 
         bool inCheck = false;
-
 
         for (auto piece : board)
         {
             if (piece->getColor() != king->getColor() && piece->getName() != 'K')
             {
-                for (auto threat : piece->legalMoves(piece,piece->whereCanMove(),piece->canTake(),board))
+                for (auto refresh : board) if (refresh->getName() != 'K') refresh->legalMoves(refresh,refresh->whereCanMove(),refresh->canTake(),board);
+
+                for (auto threat : piece->getLegalMoves())
                 {
                     if (canTake[i] == threat)
                     {
@@ -97,6 +96,7 @@ vector<pair<int,int>> King::legalMoves(Piece* selected, vector<pair<int,int>>can
                     }
                 }
             }
+
             if (inCheck) break;
         }
 
@@ -106,10 +106,11 @@ vector<pair<int,int>> King::legalMoves(Piece* selected, vector<pair<int,int>>can
         if (inCheck) canTake.erase(canTake.begin()+i);
     }
 
-    for (auto cell : canTake) legalMoves.push_back(cell);
-
-    return legalMoves;
+    for (auto cell : canTake) legalMoves_Add(cell);
 }
+
+
+
 
 
 

@@ -15,7 +15,7 @@ Engine::Engine()
     King* black_king = new King('K', "black");
     black_king->setCoords(4,0);
     board.push_back(black_king);
-/*
+
     //Pawns
     for (int i = 0; i < 2; i++)
     {
@@ -59,7 +59,7 @@ Engine::Engine()
     Queen* white_queen = new Queen('Q', "white");
     white_queen->setCoords(3,7);
     board.push_back(white_queen);
-*/
+
     Queen* black_queen = new Queen('Q', "black");
     black_queen->setCoords(3,0);
     board.push_back(black_queen);
@@ -92,7 +92,7 @@ vector<Piece*> &Engine::getBoard()
 
 vector<pair<int,int>> Engine::getLegalMoves(Piece* selected)
 {
-    return selected->legalMoves(selected,selected->whereCanMove(),selected->canTake(),board);
+    return selected->getLegalMoves();
 }
 
 void Engine::removePiece(Piece* piece)
@@ -132,7 +132,7 @@ bool Engine::isCheck(bool whosTurn)
 
         if (attackingPiece->getColor() == color) continue;
 
-        vector<pair<int, int>> attackingLM = attackingPiece->legalMoves(attackingPiece, attackingPiece->whereCanMove(), attackingPiece->canTake(), board);
+        vector<pair<int, int>> attackingLM = attackingPiece->getLegalMoves();
 
         for (auto move : attackingLM)
         {
@@ -143,8 +143,73 @@ bool Engine::isCheck(bool whosTurn)
         }
     }
 
+
     return false;
 }
+
+void Engine::removeInvalidMoves(vector<Piece*>&board, bool whosTurn)
+{
+    string color;
+    if (whosTurn == 0) color = "white";
+    else color = "black";
+
+    Piece* king;
+    for (auto _king : board)
+    {
+        if (_king->getName() == 'K' && _king->getColor() == color) king = _king;
+    }
+
+
+    for (auto piece : board)
+    {
+        if (piece->getColor() != king->getColor()) continue; // Csak a saját figurákat vizsgáljuk
+
+        vector<pair<int, int>> validMoves; // Ide gyűjtjük azokat a lépéseket, amelyek megakadályozzák a sakkot
+        auto originalCoords = piece->getCoords();
+
+        for (auto move : piece->getLegalMoves())
+        {
+            // Ideiglenesen végrehajtjuk a lépést
+            piece->setCoords(move.first, move.second);
+
+            // Megnézzük, hogy a lépés után a király nincs-e sakkban
+            bool stillInCheck = false;
+            for (auto enemy : board)
+            {
+                if (enemy->getColor() != king->getColor())
+                {
+                    for (auto threat : enemy->getLegalMoves())
+                    {
+                        if (threat == king->getCoords())
+                        {
+                            stillInCheck = true;
+                            break;
+                        }
+                    }
+                }
+                if (stillInCheck) break;
+            }
+
+            // Csak azokat a lépéseket tartjuk meg, amelyek megszüntetik a sakkot
+            if (!stillInCheck)
+            {
+                validMoves.push_back(move);
+            }
+
+            // Visszaállítjuk az eredeti pozíciót
+            piece->setCoords(originalCoords.first, originalCoords.second);
+        }
+
+        // Kiürítjük a figura korábbi legalMoves vektorát és beletesszük a jó lépéseket
+        piece->emptyLegalMoves();
+        for (auto move : validMoves)
+        {
+            piece->legalMoves_Add(move);
+        }
+    }
+}
+
+
 
 
 bool Engine::isCheckmate(bool whosTurn)
@@ -163,7 +228,7 @@ bool Engine::isCheckmate(bool whosTurn)
         }
     }
 
-    vector<pair<int, int>> kingLegalMoves = king->legalMoves(king, king->whereCanMove(), king->canTake(), board);
+    vector<pair<int, int>> kingLegalMoves = king->getLegalMoves();
 
     if (kingLegalMoves.empty())
     {
@@ -171,7 +236,7 @@ bool Engine::isCheckmate(bool whosTurn)
         {
             if (piece->getColor() == color && piece->getName() != 'K')
             {
-                if (!piece->legalMoves(piece, piece->whereCanMove(), piece->canTake(), board).empty()) return false;
+                if (!piece->getLegalMoves().empty()) return false;
             }
         }
 
@@ -179,7 +244,7 @@ bool Engine::isCheckmate(bool whosTurn)
         {
             if (piece->getColor() != color && piece->getName() != 'K')
             {
-                vector<pair<int, int>> attackingMoves = piece->legalMoves(piece, piece->whereCanMove(), piece->canTake(), board);
+                vector<pair<int, int>> attackingMoves = piece->getLegalMoves();
                 for (auto attackMove : attackingMoves)
                 {
                     if (isTakingAttackingPiece(piece, attackMove, king)) return false;
@@ -200,7 +265,7 @@ bool Engine::isTakingAttackingPiece(Piece* piece, pair<int, int> attackMove, Pie
     {
         if (attackingPiece->getColor() != piece->getColor() && attackingPiece->getName() != 'K')
         {
-            vector<pair<int, int>> attackingMoves = attackingPiece->legalMoves(attackingPiece, attackingPiece->whereCanMove(), attackingPiece->canTake(), board);
+            vector<pair<int, int>> attackingMoves = attackingPiece->getLegalMoves();
 
             if (find(attackingMoves.begin(), attackingMoves.end(), king->getCoords()) != attackingMoves.end())
             {

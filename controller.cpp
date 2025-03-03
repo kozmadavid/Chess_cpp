@@ -21,6 +21,10 @@ void Controller::start()
     {
         gui.drawBoard(board);
 
+        for (auto piece : board) if (!engine.isCheck(whosTurn)) piece->legalMoves(piece,piece->whereCanMove(),piece->canTake(),board);
+
+        if (engine.isCheck(whosTurn)) engine.removeInvalidMoves(board,whosTurn);
+
         if (engine.isCheck(whosTurn)) cout << "check" << endl;
         if (engine.isCheckmate(whosTurn) && engine.isCheck(whosTurn)) cout << "checkmate" << endl;
 
@@ -29,11 +33,13 @@ void Controller::start()
         {
             selected = selectedPiece(ev,board);
             isThereSelected = true;
+            //selected->legalMoves(selected, selected->whereCanMove(), selected->canTake(), board);
         }
 
         if (isThereSelected && ev.button == btn_left)
         {
             legalMoves_test = engine.getLegalMoves(selected);
+            cout << selected->getLegalMoves().size() << endl;
 
             for (auto move : legalMoves_test)
             {

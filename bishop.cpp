@@ -42,9 +42,9 @@ vector<pair<int,int>> Bishop::whereCanMove() //Same as whereCanTake
 }
 
 
-vector<pair<int, int>> Bishop::legalMoves(Piece* selected, vector<pair<int, int>> canMoveWhere, vector<pair<int, int>> canTake, vector<Piece*> board)
+void Bishop::legalMoves(Piece* selected, vector<pair<int, int>> canMoveWhere, vector<pair<int, int>> canTake, vector<Piece*> board)
 {
-    vector<pair<int, int>> legalMoves;
+    emptyLegalMoves();
     vector<pair<int, int>> bishopDirections = {{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
 
     for (auto direction : bishopDirections)
@@ -79,17 +79,15 @@ vector<pair<int, int>> Bishop::legalMoves(Piece* selected, vector<pair<int, int>
             }
             if (blockedByOwnPiece) break;
 
-            legalMoves.push_back(make_pair(x, y));
+            legalMoves_Add(make_pair(x,y));
 
             if (canCaptureEnemy)
             {
-                legalMoves.push_back(make_pair(x, y));
+                legalMoves_Add(make_pair(x,y));
                 break;
             }
         }
     }
-
-    return legalMoves;
 }
 
 

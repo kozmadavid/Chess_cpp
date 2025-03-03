@@ -16,6 +16,7 @@ public:
     Engine();
     vector<Piece*> &getBoard();
     void removePiece(Piece*);
+    void removeInvalidMoves(vector<Piece*>&board,bool whosTurn);
     vector<pair<int,int>> getLegalMoves(Piece* selected);
     bool isCheck(bool whosTurn);
     bool isCheckmate(bool whosTurn);

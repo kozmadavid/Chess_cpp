@@ -65,10 +65,9 @@ vector<pair<int,int>> Pawn::whereCanMove()
 }
 
 
-vector<pair<int,int>> Pawn::legalMoves(Piece* selected, vector<pair<int,int>>canMoveWhere, vector<pair<int,int>>canTake, vector<Piece*> board)
+void Pawn::legalMoves(Piece* selected, vector<pair<int,int>>canMoveWhere, vector<pair<int,int>>canTake, vector<Piece*> board)
 {
-    vector<pair<int,int>> legalMoves;
-
+    emptyLegalMoves();
     for (int i = canMoveWhere.size() - 1; i >= 0; i--)
     {
         for (int j = 0; j < board.size(); j++)
@@ -117,7 +116,7 @@ vector<pair<int,int>> Pawn::legalMoves(Piece* selected, vector<pair<int,int>>can
             }
         }
 
-    for (auto cell : canMoveWhere) legalMoves.push_back(cell); //canMoveWhere filtered, added to legalMoves
+    for (auto cell : canMoveWhere) _legalMoves.push_back(cell); //canMoveWhere filtered, added to legalMoves
 
     //_________________________________________________________________________________________________________
 
@@ -137,9 +136,7 @@ vector<pair<int,int>> Pawn::legalMoves(Piece* selected, vector<pair<int,int>>can
         if (!found) canTake.erase(canTake.begin()+i);
     }
 
-    for (auto cell : canTake) legalMoves.push_back(cell); //canTake filtered, added to legalMoves
+    for (auto cell : canTake) _legalMoves.push_back(cell); //canTake filtered, added to legalMoves
 
-
-    return legalMoves;
 }
 

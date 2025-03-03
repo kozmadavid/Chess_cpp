@@ -44,10 +44,9 @@ vector<pair<int,int>> Rook::whereCanMove() //Same as whereCanTake
 }
 
 
-vector<pair<int, int>> Rook::legalMoves(Piece* selected, vector<pair<int, int>> canMoveWhere, vector<pair<int, int>> canTake, vector<Piece*> board)
+void Rook::legalMoves(Piece* selected, vector<pair<int, int>> canMoveWhere, vector<pair<int, int>> canTake, vector<Piece*> board)
 {
-    vector<pair<int, int>> legalMoves;
-
+    emptyLegalMoves();
     vector<pair<int, int>> rookDirections = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
 
     for (auto direction : rookDirections)
@@ -82,17 +81,15 @@ vector<pair<int, int>> Rook::legalMoves(Piece* selected, vector<pair<int, int>> 
             }
             if (blockedByOwnPiece) break;
 
-            legalMoves.push_back(make_pair(x, y));
+            legalMoves_Add(make_pair(x, y));
 
             if (canCaptureEnemy)
             {
-                legalMoves.push_back(make_pair(x, y));
+                legalMoves_Add(make_pair(x, y));
                 break;
             }
         }
     }
-
-    return legalMoves;
 }
 
 
