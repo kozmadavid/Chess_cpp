@@ -1,6 +1,9 @@
 #include "king.h"
 #include "engine.h"
+
 #include <iostream>
+#include <algorithm>
+
 
 King::King(char name, string color) : Piece(name, color)
 {
@@ -43,73 +46,156 @@ vector<pair<int,int>> King::whereCanMove() //Same as whereCanTake
 }
 
 
-void King::legalMoves(Piece* selected, vector<pair<int,int>>canMoveWhere, vector<pair<int,int>>canTake, vector<Piece*> board)
+void King::legalMoves(Piece* selected, vector<pair<int,int>> canMoveWhere, vector<pair<int,int>> canTake, vector<Piece*> board)
 {
     emptyLegalMoves();
-    for (int i = canTake.size() - 1; i >= 0; i--)
-    {
-        bool found = false;
-        for (int j = 0; j < board.size(); j++)
-        {
-            if (canTake[i] == board[j]->getCoords() &&
-                    getColor() == board[j]->getColor())
-            {
-                found = true;
-                break;
-            }
-        }
 
-        if (found) canTake.erase(canTake.begin()+i);
+    pair<int, int> originalCoords = getCoords();
+    vector<pair<int, int>> validMoves = canTake;
+
+    pair<int, int> enemyKingPos;
+    for (auto piece : board)
+    {
+        if (piece->getName() == 'K' && piece->getColor() != getColor())
+        {
+            enemyKingPos = piece->getCoords();
+            break;
+        }
     }
 
-    Piece* king = selected;
     for (int i = canTake.size() - 1; i >= 0; i--)
     {
-        pair<int,int> originalCoordinates = king->getCoords();
-        king->setCoords(canTake[i].first, canTake[i].second);
+        setCoords(canTake[i].first, canTake[i].second);
+        bool isInCheck = false;
+        bool isSafeFromEnemyKing = true;
 
-        bool inCheck = false;
+        for (int dx = -1; dx <= 1; dx++)
+        {
+            for (int dy = -1; dy <= 1; dy++)
+            {
+                pair<int, int> kingMove = {enemyKingPos.first + dx, enemyKingPos.second + dy};
+                if (canTake[i] == kingMove)
+                {
+                    isSafeFromEnemyKing = false;
+                    break;
+                }
+            }
+            if (!isSafeFromEnemyKing) break;
+        }
+
+        if (!isSafeFromEnemyKing)
+        {
+            validMoves.erase(validMoves.begin() + i);
+            continue;
+        }
 
         for (auto piece : board)
         {
-            if (piece->getColor() != king->getColor() && piece->getName() != 'K')
+            if (piece->getName() != 'K' && piece->getColor() != getColor())
             {
-                for (auto refresh : board) if (refresh->getName() != 'K') refresh->legalMoves(refresh,refresh->whereCanMove(),refresh->canTake(),board);
+                piece->legalMoves(piece, piece->whereCanMove(), piece->canTake(), board);
 
-                for (auto threat : piece->getLegalMoves())
+                for (auto move : piece->getLegalMoves())
                 {
-                    if (canTake[i] == threat)
+                    if (move == getCoords())
                     {
-                        inCheck = true;
-                        break;
-                    }
-                }
-            }
-            else if(piece->getColor() != king->getColor() && piece->getName() == 'K')
-            {
-                for (auto threat : piece->canTake())
-                {
-                    if (canTake[i] == threat)
-                    {
-                        inCheck = true;
+                        isInCheck = true;
                         break;
                     }
                 }
             }
 
-            if (inCheck) break;
+            if (isInCheck) break;
         }
 
-
-        king->setCoords(originalCoordinates.first, originalCoordinates.second);
-
-        if (inCheck) canTake.erase(canTake.begin()+i);
+        if (isInCheck)
+        {
+            validMoves.erase(validMoves.begin() + i);
+        }
     }
 
-    for (auto cell : canTake) legalMoves_Add(cell);
+    setCoords(originalCoords.first, originalCoords.second);
+
+    for (int i = validMoves.size()-1; i >= 0; i--)
+    {
+        for (auto piece : board)
+        {
+            if (piece->getColor() == getColor() && validMoves[i] == piece->getCoords())
+            {
+                validMoves.erase(validMoves.begin()+i);
+            }
+        }
+    }
+
+    setLegalMoves(validMoves);
 }
 
 
+
+/*
+void King::legalMoves(Piece* selected, vector<pair<int,int>> canMoveWhere, vector<pair<int,int>> canTake, vector<Piece*> board)
+{
+    // Saját bábuk eltávolítása a canTake listából
+    for (int i = canTake.size() - 1; i >= 0; i--)
+    {
+        for (auto* piece : board)
+        {
+            if (canTake[i] == piece->getCoords() && getColor() == piece->getColor())
+            {
+                canTake.erase(canTake.begin() + i);
+                break;
+            }
+        }
+    }
+
+    // Ellenőrizzük az ellenfél bábuit, hogy sakkban lennénk-e
+    vector<int> whatToErase;
+    pair<int, int> originalCoordinates = getCoords();
+
+    for (int i = 0; i < canTake.size(); i++)
+    {
+        setCoords(canTake[i].first, canTake[i].second);
+
+        for (auto* piece : board)
+        {
+            if (getColor() != piece->getColor() && piece->getName() != 'K')
+            {
+                piece->legalMoves(piece, piece->whereCanMove(), piece->canTake(), board);
+
+                for (auto move : piece->canTake()) // Csak az üthető mezőket vizsgáljuk
+                {
+                    if (getCoords() == move)
+                    {
+                        whatToErase.push_back(i);
+                    }
+                }
+            }
+        }
+    }
+
+    // Debug kiírás, hogy lásd, milyen mezőket törlünk
+    cout << "Törlésre jelölt mezők: ";
+    for (auto index : whatToErase) {
+        if (index < canTake.size()) {
+            cout << "(" << canTake[index].first << ", " << canTake[index].second << ") ";
+        }
+    }
+    cout << endl;
+
+    // A törlendő indexeket fordított sorrendben töröljük
+    sort(whatToErase.rbegin(), whatToErase.rend());
+    for (auto index : whatToErase)
+    {
+        if (index < canTake.size()) {
+            canTake.erase(canTake.begin() + index);
+        }
+    }
+
+    // Eredeti koordináták visszaállítása
+    setCoords(originalCoordinates.first, originalCoordinates.second);
+    setLegalMoves(canTake);
+}
+*/
 
 
 

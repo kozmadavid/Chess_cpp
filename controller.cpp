@@ -10,10 +10,6 @@ Controller::Controller()
 
 void Controller::start()
 {
-    Engine engine;
-    GUI gui;
-    event ev;
-
     vector<Piece*> &board = engine.getBoard();
     vector<pair<int,int>> legalMoves_test;
 
@@ -28,22 +24,29 @@ void Controller::start()
         if (engine.isCheck(whosTurn)) cout << "check" << endl;
         if (engine.isCheckmate(whosTurn) && engine.isCheck(whosTurn)) cout << "checkmate" << endl;
 
-        if ((selectedPiece(ev,board) != nullptr && whosTurn == 0 && selectedPiece(ev,board)->getColor() == "white") ||
-                (selectedPiece(ev,board) != nullptr && whosTurn == 1 && selectedPiece(ev,board)->getColor() == "black"))
+        if ((selectedPiece(board) != nullptr && whosTurn == 0 && selectedPiece(board)->getColor() == "white") ||
+                (selectedPiece(board) != nullptr && whosTurn == 1 && selectedPiece(board)->getColor() == "black"))
         {
-            selected = selectedPiece(ev,board);
+            selected = selectedPiece(board);
             isThereSelected = true;
-            //selected->legalMoves(selected, selected->whereCanMove(), selected->canTake(), board);
         }
 
         if (isThereSelected && ev.button == btn_left)
         {
             legalMoves_test = engine.getLegalMoves(selected);
+
+            //debugging
             cout << selected->getLegalMoves().size() << endl;
+            cout << endl << "selected legal moves: " << endl;
+            for (auto move : selected->getLegalMoves())
+            {
+                cout << "x: " << move.first << "y: " << move.second << endl;
+            }
+            //debugging
 
             for (auto move : legalMoves_test)
             {
-                if (clickedCell(ev) == move)
+                if (clickedCell() == move)
                 {
                     auto originalCoords = selected->getCoords();
                     Piece* capturedPiece = nullptr;
@@ -87,7 +90,7 @@ void Controller::start()
 
                         if (capturedPiece) engine.removePiece(capturedPiece);
 
-                        selected->setCoords(clickedCell(ev).first, clickedCell(ev).second);
+                        selected->setCoords(clickedCell().first, clickedCell().second);
                         isThereSelected = false;
 
                         if (shouldSwitchTurn)
@@ -109,7 +112,7 @@ void Controller::start()
     }
 }
 
-Piece* Controller::selectedPiece(event ev, vector<Piece*> board)
+Piece* Controller::selectedPiece(vector<Piece*> board)
 {
 
     int cellSize = 100;
@@ -131,7 +134,7 @@ Piece* Controller::selectedPiece(event ev, vector<Piece*> board)
     return nullptr;
 }
 
-pair<int, int> Controller::clickedCell(event ev)
+pair<int, int> Controller::clickedCell()
 {
     int cellSize = 100;
 

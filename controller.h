@@ -15,10 +15,14 @@ public:
     int getCurrentPlayer();
 
 private:
+    Engine engine;
+    GUI gui;
+    genv::event ev;
+
     bool whosTurn = 0; //0-white 1-black
-    Piece* selectedPiece(genv::event ev, vector<Piece*> board);
+    Piece* selectedPiece(vector<Piece*> board);
     Piece* selected;
-    pair<int, int> clickedCell(genv::event ev);
+    pair<int, int> clickedCell();
     bool isThereSelected = false;
 };
 

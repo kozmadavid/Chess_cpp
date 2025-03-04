@@ -15,6 +15,7 @@ Engine::Engine()
     King* black_king = new King('K', "black");
     black_king->setCoords(4,0);
     board.push_back(black_king);
+/*
 
     //Pawns
     for (int i = 0; i < 2; i++)
@@ -45,7 +46,7 @@ Engine::Engine()
     Bishop* white_bishop_w = new Bishop('B', "white");
     white_bishop_w->setCoords(5,7);
     board.push_back(white_bishop_w);
-
+*/
     Bishop* black_bishop_w = new Bishop('B', "black");
     black_bishop_w->setCoords(2,0);
     board.push_back(black_bishop_w);
@@ -64,7 +65,7 @@ Engine::Engine()
     black_queen->setCoords(3,0);
     board.push_back(black_queen);
 
-
+/*
     //Rooks
     Rook* white_rook_w = new Rook('R', "white");
     white_rook_w->setCoords(7,7);
@@ -81,7 +82,7 @@ Engine::Engine()
     Rook* black_rook_b = new Rook('R', "black");
     black_rook_b->setCoords(7,0);
     board.push_back(black_rook_b);
-
+*/
 }
 
 
@@ -143,9 +144,9 @@ bool Engine::isCheck(bool whosTurn)
         }
     }
 
-
     return false;
 }
+
 
 void Engine::removeInvalidMoves(vector<Piece*>&board, bool whosTurn)
 {
@@ -162,54 +163,24 @@ void Engine::removeInvalidMoves(vector<Piece*>&board, bool whosTurn)
 
     for (auto piece : board)
     {
-        if (piece->getColor() != king->getColor()) continue; // Csak a saját figurákat vizsgáljuk
+        if (piece->getColor() != king->getColor()) continue;
 
-        vector<pair<int, int>> validMoves; // Ide gyűjtjük azokat a lépéseket, amelyek megakadályozzák a sakkot
+        vector<pair<int, int>> validMoves;
         auto originalCoords = piece->getCoords();
 
         for (auto move : piece->getLegalMoves())
         {
-            // Ideiglenesen végrehajtjuk a lépést
-            piece->setCoords(move.first, move.second);
-
-            // Megnézzük, hogy a lépés után a király nincs-e sakkban
-            bool stillInCheck = false;
-            for (auto enemy : board)
-            {
-                if (enemy->getColor() != king->getColor())
-                {
-                    for (auto threat : enemy->getLegalMoves())
-                    {
-                        if (threat == king->getCoords())
-                        {
-                            stillInCheck = true;
-                            break;
-                        }
-                    }
-                }
-                if (stillInCheck) break;
-            }
-
-            // Csak azokat a lépéseket tartjuk meg, amelyek megszüntetik a sakkot
-            if (!stillInCheck)
-            {
-                validMoves.push_back(move);
-            }
-
-            // Visszaállítjuk az eredeti pozíciót
-            piece->setCoords(originalCoords.first, originalCoords.second);
+            piece->setCoords(move.first,move.second);
+            if (isCheck(whosTurn)) continue;
+            validMoves.push_back(move);
         }
 
-        // Kiürítjük a figura korábbi legalMoves vektorát és beletesszük a jó lépéseket
+        piece->setCoords(originalCoords.first, originalCoords.second);
+
         piece->emptyLegalMoves();
-        for (auto move : validMoves)
-        {
-            piece->legalMoves_Add(move);
-        }
+        piece->setLegalMoves(validMoves);
     }
 }
-
-
 
 
 bool Engine::isCheckmate(bool whosTurn)

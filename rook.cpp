@@ -20,19 +20,6 @@ void Rook::setFirstMoveFalse()
 vector<pair<int, int>> Rook::canTake()
 {
     vector<pair<int,int>> ct;
-
-    int x = getCoords().first;
-    int y = getCoords().second;
-
-    for (int i = 1; x + i < 8; i++) ct.push_back(make_pair(x + i, y));
-
-    for (int i = 1; x - i >= 0; i++) ct.push_back(make_pair(x - i, y));
-
-    for (int i = 1; y - i >= 0; i++) ct.push_back(make_pair(x, y - i));
-
-    for (int i = 1; y + i < 8; i++) ct.push_back(make_pair(x, y + i));
-
-
     return ct;
 }
 
@@ -86,6 +73,44 @@ void Rook::legalMoves(Piece* selected, vector<pair<int, int>> canMoveWhere, vect
             if (canCaptureEnemy)
             {
                 legalMoves_Add(make_pair(x, y));
+                break;
+            }
+        }
+    }
+
+    vector<pair<int, int>> sameCoordinates = _legalMoves;
+    vector<pair<int, int>> toErase;
+    vector<pair<int, int>> seenCoordinates;
+
+    for (int i = 0; i < _legalMoves.size(); i++)
+    {
+        bool isDuplicate = false;
+        for (auto& coord : seenCoordinates)
+        {
+            if (coord == _legalMoves[i])
+            {
+                isDuplicate = true;
+                break;
+            }
+        }
+
+        if (isDuplicate)
+        {
+            toErase.push_back(_legalMoves[i]);
+        }
+        else
+        {
+            seenCoordinates.push_back(_legalMoves[i]);
+        }
+    }
+
+    for (auto& coord : toErase)
+    {
+        for (auto it = _legalMoves.begin(); it != _legalMoves.end(); ++it)
+        {
+            if (*it == coord)
+            {
+                _legalMoves.erase(it);
                 break;
             }
         }
