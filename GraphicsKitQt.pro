@@ -9,6 +9,7 @@ SOURCES += \
         engine.cpp \
         gui.cpp \
         king.cpp \
+        knight.cpp \
         main.cpp \
         graphics/graphics.cpp \
         pawn.cpp \
@@ -38,6 +39,7 @@ HEADERS += \
     engine.h \
     gui.h \
     king.h \
+    knight.h \
     pawn.h \
     piece.h \
     queen.h \

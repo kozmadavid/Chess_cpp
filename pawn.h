@@ -8,6 +8,10 @@ class Pawn : public Piece
 {
 public:
     Pawn(char name, std::string color);
+    Piece* copy() const override
+    {
+            return new Pawn(*this);
+    }
     std::vector<std::pair<int,int>> canTake() override;
     std::vector<std::pair<int,int>> whereCanMove() override;
     void legalMoves(

@@ -15,7 +15,6 @@ Engine::Engine()
     King* black_king = new King('K', "black");
     black_king->setCoords(4,0);
     board.push_back(black_king);
-/*
 
     //Pawns
     for (int i = 0; i < 2; i++)
@@ -46,7 +45,7 @@ Engine::Engine()
     Bishop* white_bishop_w = new Bishop('B', "white");
     white_bishop_w->setCoords(5,7);
     board.push_back(white_bishop_w);
-*/
+
     Bishop* black_bishop_w = new Bishop('B', "black");
     black_bishop_w->setCoords(2,0);
     board.push_back(black_bishop_w);
@@ -54,6 +53,23 @@ Engine::Engine()
     Bishop* black_bishop_b = new Bishop('B', "black");
     black_bishop_b->setCoords(5,0);
     board.push_back(black_bishop_b);
+
+    //Knights
+    Knight* white_knight_b = new Knight('N', "white");
+    white_knight_b->setCoords(1,7);
+    board.push_back(white_knight_b);
+
+    Knight* white_knight_w = new Knight('N', "white");
+    white_knight_w->setCoords(6,7);
+    board.push_back(white_knight_w);
+
+    Knight* black_knight_w = new Knight('N', "black");
+    black_knight_w->setCoords(1,0);
+    board.push_back(black_knight_w);
+
+    Knight* black_knight_b = new Knight('N', "black");
+    black_knight_b->setCoords(6,0);
+    board.push_back(black_knight_b);
 
 
     //Queens
@@ -65,7 +81,7 @@ Engine::Engine()
     black_queen->setCoords(3,0);
     board.push_back(black_queen);
 
-/*
+
     //Rooks
     Rook* white_rook_w = new Rook('R', "white");
     white_rook_w->setCoords(7,7);
@@ -82,7 +98,6 @@ Engine::Engine()
     Rook* black_rook_b = new Rook('R', "black");
     black_rook_b->setCoords(7,0);
     board.push_back(black_rook_b);
-*/
 }
 
 
@@ -108,34 +123,30 @@ void Engine::removePiece(Piece* piece)
         }
 }
 
-
-bool Engine::isCheck(bool whosTurn)
+bool Engine::isCheck(bool whosTurn, const vector<Piece*>& customBoard)
 {
+    string color = (whosTurn == 0) ? "white" : "black";
+    Piece* king = nullptr;
 
-    string color;
-    if (whosTurn == 0) color = "white";
-    else color = "black";
-
-
-    Piece* king;
-    for (int i = 0; i < board.size(); i++)
+    for (auto piece : customBoard)
     {
-        if (board[i]->getName() == 'K' && board[i]->getColor() == color)
+        if (piece->getName() == 'K' && piece->getColor() == color)
         {
-            king = board[i];
+            king = piece;
             break;
         }
     }
 
-    for (int i = 0; i < board.size(); i++)
+    if (king == nullptr) return false;
+
+    for (auto attacker : customBoard)
     {
-        Piece* attackingPiece = board[i];
+        if (attacker->getColor() == color) continue;
 
-        if (attackingPiece->getColor() == color) continue;
+        attacker->legalMoves(attacker, attacker->whereCanMove(), attacker->canTake(), customBoard);
+        vector<pair<int, int>> attackingMoves = attacker->getLegalMoves();
 
-        vector<pair<int, int>> attackingLM = attackingPiece->getLegalMoves();
-
-        for (auto move : attackingLM)
+        for (auto move : attackingMoves)
         {
             if (move == king->getCoords())
             {
@@ -147,38 +158,66 @@ bool Engine::isCheck(bool whosTurn)
     return false;
 }
 
-
-void Engine::removeInvalidMoves(vector<Piece*>&board, bool whosTurn)
+void Engine::removeInvalidMoves(vector<Piece*>& board, bool whosTurn)
 {
-    string color;
-    if (whosTurn == 0) color = "white";
-    else color = "black";
+    string color = (whosTurn == 0) ? "white" : "black";
 
-    Piece* king;
-    for (auto _king : board)
+    for (auto* piece : board)
     {
-        if (_king->getName() == 'K' && _king->getColor() == color) king = _king;
-    }
+        if (piece->getColor() != color || piece->getName() == 'K') continue;
 
+        vector<pair<int, int>> validMoves = piece->getLegalMoves();
+        pair<int, int> originalCoords = piece->getCoords();
 
-    for (auto piece : board)
-    {
-        if (piece->getColor() != king->getColor()) continue;
-
-        vector<pair<int, int>> validMoves;
-        auto originalCoords = piece->getCoords();
-
-        for (auto move : piece->getLegalMoves())
+        for (int i = validMoves.size() - 1; i >= 0; i--)
         {
-            piece->setCoords(move.first,move.second);
-            if (isCheck(whosTurn)) continue;
-            validMoves.push_back(move);
+            vector<Piece*> simulatedBoard;
+            for (auto* p : board)
+            {
+                simulatedBoard.push_back(p->copy());
+            }
+
+            Piece* simulatedPiece = nullptr;
+            for (auto* p : simulatedBoard)
+            {
+                if (p->getCoords() == originalCoords && p->getColor() == piece->getColor() && p->getName() == piece->getName())
+                {
+                    simulatedPiece = p;
+                    break;
+                }
+            }
+
+            if (!simulatedPiece) continue;
+
+            for (int j = 0; j < simulatedBoard.size(); j++)
+            {
+                Piece* target = simulatedBoard[j];
+                if (target->getCoords() == validMoves[i] && target->getColor() != simulatedPiece->getColor())
+                {
+                    delete target;
+                    simulatedBoard.erase(simulatedBoard.begin() + j);
+                    break;
+                }
+            }
+
+            simulatedPiece->setCoords(validMoves[i].first, validMoves[i].second);
+
+            if (isCheck(whosTurn, simulatedBoard))
+            {
+                validMoves.erase(validMoves.begin() + i);
+            }
+
+            for (auto* p : simulatedBoard)
+            {
+                delete p;
+            }
         }
 
-        piece->setCoords(originalCoords.first, originalCoords.second);
-
         piece->emptyLegalMoves();
-        piece->setLegalMoves(validMoves);
+        for (auto& move : validMoves)
+        {
+            piece->legalMoves_Add(move);
+        }
     }
 }
 

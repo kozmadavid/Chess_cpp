@@ -24,7 +24,7 @@ vector<pair<int, int>> Rook::canTake()
 }
 
 
-vector<pair<int,int>> Rook::whereCanMove() //Same as whereCanTake
+vector<pair<int,int>> Rook::whereCanMove() //Same as canTake
 {
     vector<pair<int,int>> wcm;
     return wcm;

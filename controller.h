@@ -12,8 +12,6 @@ class Controller
 public:
     Controller();
     void start();
-    int getCurrentPlayer();
-
 private:
     Engine engine;
     GUI gui;

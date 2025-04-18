@@ -39,7 +39,7 @@ vector<pair<int, int>> King::canTake()
 }
 
 
-vector<pair<int,int>> King::whereCanMove() //Same as whereCanTake
+vector<pair<int,int>> King::whereCanMove() //Same as canTake
 {
     vector<pair<int,int>> wcm;
     return wcm;
@@ -129,73 +129,6 @@ void King::legalMoves(Piece* selected, vector<pair<int,int>> canMoveWhere, vecto
 
     setLegalMoves(validMoves);
 }
-
-
-
-/*
-void King::legalMoves(Piece* selected, vector<pair<int,int>> canMoveWhere, vector<pair<int,int>> canTake, vector<Piece*> board)
-{
-    // Saját bábuk eltávolítása a canTake listából
-    for (int i = canTake.size() - 1; i >= 0; i--)
-    {
-        for (auto* piece : board)
-        {
-            if (canTake[i] == piece->getCoords() && getColor() == piece->getColor())
-            {
-                canTake.erase(canTake.begin() + i);
-                break;
-            }
-        }
-    }
-
-    // Ellenőrizzük az ellenfél bábuit, hogy sakkban lennénk-e
-    vector<int> whatToErase;
-    pair<int, int> originalCoordinates = getCoords();
-
-    for (int i = 0; i < canTake.size(); i++)
-    {
-        setCoords(canTake[i].first, canTake[i].second);
-
-        for (auto* piece : board)
-        {
-            if (getColor() != piece->getColor() && piece->getName() != 'K')
-            {
-                piece->legalMoves(piece, piece->whereCanMove(), piece->canTake(), board);
-
-                for (auto move : piece->canTake()) // Csak az üthető mezőket vizsgáljuk
-                {
-                    if (getCoords() == move)
-                    {
-                        whatToErase.push_back(i);
-                    }
-                }
-            }
-        }
-    }
-
-    // Debug kiírás, hogy lásd, milyen mezőket törlünk
-    cout << "Törlésre jelölt mezők: ";
-    for (auto index : whatToErase) {
-        if (index < canTake.size()) {
-            cout << "(" << canTake[index].first << ", " << canTake[index].second << ") ";
-        }
-    }
-    cout << endl;
-
-    // A törlendő indexeket fordított sorrendben töröljük
-    sort(whatToErase.rbegin(), whatToErase.rend());
-    for (auto index : whatToErase)
-    {
-        if (index < canTake.size()) {
-            canTake.erase(canTake.begin() + index);
-        }
-    }
-
-    // Eredeti koordináták visszaállítása
-    setCoords(originalCoordinates.first, originalCoordinates.second);
-    setLegalMoves(canTake);
-}
-*/
 
 
 

@@ -11,21 +11,22 @@ Controller::Controller()
 void Controller::start()
 {
     vector<Piece*> &board = engine.getBoard();
-    vector<pair<int,int>> legalMoves_test;
+    vector<pair<int,int>> selectedLegalMoves;
 
     while (gin >> ev && ev.keycode != key_escape)
     {
         gui.drawBoard(board);
 
-        for (auto piece : board) if (!engine.isCheck(whosTurn)) piece->legalMoves(piece,piece->whereCanMove(),piece->canTake(),board);
+        for (auto piece : board)
+            piece->legalMoves(piece, piece->whereCanMove(), piece->canTake(), board);
 
-        if (engine.isCheck(whosTurn)) engine.removeInvalidMoves(board,whosTurn);
+        engine.removeInvalidMoves(board, whosTurn);
 
-        if (engine.isCheck(whosTurn)) cout << "check" << endl;
-        if (engine.isCheckmate(whosTurn) && engine.isCheck(whosTurn)) cout << "checkmate" << endl;
+        if (engine.isCheckmate(whosTurn) && engine.isCheck(whosTurn, board))
+            cout << "checkmate";
 
         if ((selectedPiece(board) != nullptr && whosTurn == 0 && selectedPiece(board)->getColor() == "white") ||
-                (selectedPiece(board) != nullptr && whosTurn == 1 && selectedPiece(board)->getColor() == "black"))
+            (selectedPiece(board) != nullptr && whosTurn == 1 && selectedPiece(board)->getColor() == "black"))
         {
             selected = selectedPiece(board);
             isThereSelected = true;
@@ -33,22 +34,13 @@ void Controller::start()
 
         if (isThereSelected && ev.button == btn_left)
         {
-            legalMoves_test = engine.getLegalMoves(selected);
+            selectedLegalMoves = engine.getLegalMoves(selected);
 
-            //debugging
-            cout << selected->getLegalMoves().size() << endl;
-            cout << endl << "selected legal moves: " << endl;
-            for (auto move : selected->getLegalMoves())
-            {
-                cout << "x: " << move.first << "y: " << move.second << endl;
-            }
-            //debugging
-
-            for (auto move : legalMoves_test)
+            for (auto move : selectedLegalMoves)
             {
                 if (clickedCell() == move)
                 {
-                    auto originalCoords = selected->getCoords();
+                    pair<int,int> originalCoords = selected->getCoords();
                     Piece* capturedPiece = nullptr;
 
                     for (int i = 0; i < board.size(); i++)
@@ -77,7 +69,7 @@ void Controller::start()
                         }
                     }
 
-                    bool stillInCheck = engine.isCheck(whosTurn);
+                    bool stillInCheck = engine.isCheck(whosTurn, board);
 
                     selected->setCoords(originalCoords.first, originalCoords.second);
 
@@ -105,7 +97,7 @@ void Controller::start()
         if (isThereSelected)
         {
             gui.drawSelected(selected);
-            gui.drawSelectedMoves(legalMoves_test);
+            gui.drawSelectedMoves(selectedLegalMoves);
         }
 
         gout.refresh();
@@ -114,23 +106,22 @@ void Controller::start()
 
 Piece* Controller::selectedPiece(vector<Piece*> board)
 {
-
     int cellSize = 100;
 
     if (ev.button == btn_left)
+    {
+        for (auto piece : board)
         {
-            for (auto piece : board)
-            {
-                int piece_x = piece->getCoords().first * cellSize;
-                int piece_y = piece->getCoords().second * cellSize;
+            int piece_x = piece->getCoords().first * cellSize;
+            int piece_y = piece->getCoords().second * cellSize;
 
-                if (ev.pos_x >= piece_x && ev.pos_x < piece_x + cellSize &&
-                        ev.pos_y >= piece_y && ev.pos_y < piece_y + cellSize)
-                {
-                    return piece;
-                }
+            if (ev.pos_x >= piece_x && ev.pos_x < piece_x + cellSize &&
+                ev.pos_y >= piece_y && ev.pos_y < piece_y + cellSize)
+            {
+                return piece;
             }
         }
+    }
     return nullptr;
 }
 

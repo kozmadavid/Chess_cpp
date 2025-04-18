@@ -48,7 +48,7 @@ void Piece::legalMoves_Add(pair<int,int>newItem)
 
 void Piece::emptyLegalMoves()
 {
-    _legalMoves.erase(_legalMoves.begin(),_legalMoves.end());
+    _legalMoves.clear();
 }
 
 
