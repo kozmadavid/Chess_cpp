@@ -83,6 +83,18 @@ void Controller::start()
                         if (capturedPiece) engine.removePiece(capturedPiece);
 
                         selected->setCoords(clickedCell().first, clickedCell().second);
+                        engine.promotion(board); //under developement
+                        /*
+                         if (engine.isPromotion())
+                         {
+                            GUI should pop up a selector widget, where you can choose the type
+                            of the promoted pawn. If that is done, the engine will get that info,
+                            delete the promoting pawn and create the new piece on the pawns coords.
+
+                            note: this part of the code is not over until a piece was selected
+                            in the GUI, because only then is the other colors turn.
+                         }
+                        */
                         isThereSelected = false;
 
                         if (shouldSwitchTurn)

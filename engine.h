@@ -22,6 +22,7 @@ public:
     bool isCheck(bool whosTurn,const vector<Piece*>& customBoard);
     bool isCheckmate(bool whosTurn);
     bool isTakingAttackingPiece(Piece* piece, pair<int, int> attackMove, Piece* king);
+    void promotion(vector<Piece*> board);
 private:
     vector<Piece*> board;
 };

@@ -287,3 +287,18 @@ bool Engine::isTakingAttackingPiece(Piece* piece, pair<int, int> attackMove, Pie
     return false;
 }
 
+void Engine::promotion(vector<Piece*> board)
+{
+    for (auto piece : board)
+    {
+        if (piece->getColor() == "white")
+        {
+            if (piece->getName() == 'P' && piece->getCoords().second == 0) cout << "promotion\n";
+        }
+        else
+        {
+            if (piece->getName() == 'P' && piece->getCoords().second == 7) cout << "promotion\n";
+        }
+    }
+}
+
