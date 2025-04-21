@@ -31,7 +31,7 @@ vector<pair<int,int>> Rook::whereCanMove() //Same as canTake
 }
 
 
-void Rook::legalMoves(Piece* selected, vector<pair<int, int>> canMoveWhere, vector<pair<int, int>> canTake, vector<Piece*> board)
+void Rook::legalMoves(vector<pair<int, int>> canMoveWhere, vector<pair<int, int>> canTake, vector<Piece*> board)
 {
     emptyLegalMoves();
     vector<pair<int, int>> rookDirections = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};

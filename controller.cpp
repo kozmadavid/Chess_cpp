@@ -4,9 +4,7 @@
 using namespace genv;
 using namespace std;
 
-Controller::Controller()
-{
-}
+Controller::Controller(){}
 
 void Controller::start()
 {
@@ -18,12 +16,23 @@ void Controller::start()
         gui.drawBoard(board);
 
         for (auto piece : board)
-            piece->legalMoves(piece, piece->whereCanMove(), piece->canTake(), board);
+            piece->legalMoves(piece->whereCanMove(), piece->canTake(), board);
 
         engine.removeInvalidMoves(board, whosTurn);
+        engine.shortCastleCheck(whosTurn);
+        engine.longCastleCheck(whosTurn);
 
         if (engine.isCheckmate(whosTurn) && engine.isCheck(whosTurn, board))
-            cout << "checkmate";
+        {
+             cout << "checkmate";
+             //gui.drawEnd();
+        }
+
+        if (engine.isCheckmate(whosTurn) && !engine.isCheck(whosTurn, board))
+        {
+            cout << "draw";
+            //gui.drawEnd();
+        }
 
         if ((selectedPiece(board) != nullptr && whosTurn == 0 && selectedPiece(board)->getColor() == "white") ||
             (selectedPiece(board) != nullptr && whosTurn == 1 && selectedPiece(board)->getColor() == "black"))
@@ -77,30 +86,27 @@ void Controller::start()
 
                     if (!stillInCheck)
                     {
-                        if (selected->getName() == 'P' || selected->getName() == 'K' || selected->getName() == 'R')
-                            selected->setFirstMoveFalse();
-
                         if (capturedPiece) engine.removePiece(capturedPiece);
 
                         selected->setCoords(clickedCell().first, clickedCell().second);
-                        engine.promotion(board); //under developement
-                        /*
-                         if (engine.isPromotion())
-                         {
-                            GUI should pop up a selector widget, where you can choose the type
-                            of the promoted pawn. If that is done, the engine will get that info,
-                            delete the promoting pawn and create the new piece on the pawns coords.
 
-                            note: this part of the code is not over until a piece was selected
-                            in the GUI, because only then is the other colors turn.
-                         }
-                        */
+                        if (engine.isPromotion(board))
+                        {
+                            engine.promotion(selected, 'Q');
+                        }
+
+                        engine.shortCastle(whosTurn);
+                        engine.longCastle(whosTurn);
+
                         isThereSelected = false;
 
                         if (shouldSwitchTurn)
                         {
                             whosTurn = !whosTurn;
                         }
+
+                        if (selected->getName() == 'P' || selected->getName() == 'K' || selected->getName() == 'R')
+                            selected->setFirstMoveFalse();
                     }
                 }
             }

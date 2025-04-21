@@ -5,9 +5,7 @@
 #include <algorithm>
 
 
-King::King(char name, string color) : Piece(name, color)
-{
-}
+King::King(char name, string color) : Piece(name, color) {}
 
 bool King::isFirstMove()
 {
@@ -46,7 +44,7 @@ vector<pair<int,int>> King::whereCanMove() //Same as canTake
 }
 
 
-void King::legalMoves(Piece* selected, vector<pair<int,int>> canMoveWhere, vector<pair<int,int>> canTake, vector<Piece*> board)
+void King::legalMoves(vector<pair<int,int>> canMoveWhere, vector<pair<int,int>> canTake, vector<Piece*> board)
 {
     emptyLegalMoves();
 
@@ -93,7 +91,7 @@ void King::legalMoves(Piece* selected, vector<pair<int,int>> canMoveWhere, vecto
         {
             if (piece->getName() != 'K' && piece->getColor() != getColor())
             {
-                piece->legalMoves(piece, piece->whereCanMove(), piece->canTake(), board);
+                piece->legalMoves(piece->whereCanMove(), piece->canTake(), board);
 
                 for (auto move : piece->getLegalMoves())
                 {

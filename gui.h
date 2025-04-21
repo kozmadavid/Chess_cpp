@@ -18,10 +18,10 @@ public:
     GUI();
     void drawBoard(vector<Piece*>);
     void drawSelected(Piece*);
+    void drawPieces(vector<Piece*>);
     void drawSelectedMoves(vector<pair<int,int>>);
     vector<Pixel> readImage(const string&);
     vector<Pixel> loadPieceImage(const string&);
-    void drawPieces(vector<Piece*>);
 };
 
 #endif // GUI_H

@@ -13,8 +13,7 @@ public:
     }
     std::vector<std::pair<int,int>> canTake() override;
     std::vector<std::pair<int,int>> whereCanMove() override;
-    void legalMoves(
-            Piece* selected, std::vector<std::pair<int,int>>canMoveWhere,
+    void legalMoves(std::vector<std::pair<int,int>>canMoveWhere,
             std::vector<std::pair<int,int>>canTake, std::vector<Piece*>board) override;
     bool isFirstMove() override;
     void setFirstMoveFalse() override;

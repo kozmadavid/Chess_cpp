@@ -40,6 +40,7 @@ HEADERS += \
     gui.h \
     king.h \
     knight.h \
+    knight.h \
     pawn.h \
     piece.h \
     queen.h \

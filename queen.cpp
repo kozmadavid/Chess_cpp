@@ -49,7 +49,7 @@ vector<pair<int,int>> Queen::whereCanMove() //Same as whereCanTake
 }
 
 
-void Queen::legalMoves(Piece* selected, vector<pair<int, int>> canMoveWhere, vector<pair<int, int>> canTake, vector<Piece*> board)
+void Queen::legalMoves(vector<pair<int, int>> canMoveWhere, vector<pair<int, int>> canTake, vector<Piece*> board)
 {
     emptyLegalMoves();
     vector<pair<int, int>> queenDirections = {{-1, 0}, {1, 0}, {0, -1}, {0, 1},

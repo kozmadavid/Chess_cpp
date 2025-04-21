@@ -42,7 +42,7 @@ vector<pair<int,int>> Knight::whereCanMove() //Same as canTake
 }
 
 
-void Knight::legalMoves(Piece* selected, vector<pair<int, int>> canMoveWhere, vector<pair<int, int>> canTake, vector<Piece*> board)
+void Knight::legalMoves(vector<pair<int, int>> canMoveWhere, vector<pair<int, int>> canTake, vector<Piece*> board)
 {
     emptyLegalMoves();
 

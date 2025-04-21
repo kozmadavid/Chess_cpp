@@ -11,6 +11,8 @@ class Piece
 public:
     Piece(char _name, std::string _color);
 
+    virtual ~Piece() {}
+
     char getName();
     std::string getColor();
     std::pair<int,int> getCoords();
@@ -25,8 +27,7 @@ public:
     virtual std::vector<std::pair<int,int>> canTake() = 0; //Fc that determines which pieces can the piece take
     virtual std::vector<std::pair<int,int>> whereCanMove() = 0; //Fc that determines which coordinates can the piece move
     //(in most cases its the same as canTake or vice versa)
-    virtual void legalMoves( //Legalmoves fc doesnt need selected piece !!!
-            Piece* selected, std::vector<std::pair<int,int>>canMoveWhere,
+    virtual void legalMoves(std::vector<std::pair<int,int>>canMoveWhere,
             std::vector<std::pair<int,int>>canTake, std::vector<Piece*>board) = 0; //Fc which comes back the actual moves which the piece can make on the board
     virtual bool isFirstMove() = 0;
     virtual void setFirstMoveFalse() = 0;

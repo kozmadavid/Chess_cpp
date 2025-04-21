@@ -123,6 +123,7 @@ void Engine::removePiece(Piece* piece)
         }
 }
 
+
 bool Engine::isCheck(bool whosTurn, const vector<Piece*>& customBoard)
 {
     string color = (whosTurn == 0) ? "white" : "black";
@@ -143,7 +144,7 @@ bool Engine::isCheck(bool whosTurn, const vector<Piece*>& customBoard)
     {
         if (attacker->getColor() == color) continue;
 
-        attacker->legalMoves(attacker, attacker->whereCanMove(), attacker->canTake(), customBoard);
+        attacker->legalMoves(attacker->whereCanMove(), attacker->canTake(), customBoard);
         vector<pair<int, int>> attackingMoves = attacker->getLegalMoves();
 
         for (auto move : attackingMoves)
@@ -157,6 +158,8 @@ bool Engine::isCheck(bool whosTurn, const vector<Piece*>& customBoard)
 
     return false;
 }
+
+
 
 void Engine::removeInvalidMoves(vector<Piece*>& board, bool whosTurn)
 {
@@ -224,9 +227,7 @@ void Engine::removeInvalidMoves(vector<Piece*>& board, bool whosTurn)
 
 bool Engine::isCheckmate(bool whosTurn)
 {
-    string color;
-    if (whosTurn == 0) color = "white";
-    else color = "black";
+    string color = (whosTurn == 0) ? "white" : "black";
 
     Piece* king;
     for (auto piece : board)
@@ -287,18 +288,236 @@ bool Engine::isTakingAttackingPiece(Piece* piece, pair<int, int> attackMove, Pie
     return false;
 }
 
-void Engine::promotion(vector<Piece*> board)
+bool Engine::isPromotion(vector<Piece*> board)
 {
     for (auto piece : board)
     {
         if (piece->getColor() == "white")
         {
-            if (piece->getName() == 'P' && piece->getCoords().second == 0) cout << "promotion\n";
+            if (piece->getName() == 'P' && piece->getCoords().second == 0) return true;
         }
         else
         {
-            if (piece->getName() == 'P' && piece->getCoords().second == 7) cout << "promotion\n";
+            if (piece->getName() == 'P' && piece->getCoords().second == 7) return true;
+        }
+    }
+    return false;
+}
+
+void Engine::promotion(Piece* pawn, char promoted)
+{
+    pair<int,int> savedCoords = pawn->getCoords();
+    string color = pawn->getColor();
+
+    removePiece(pawn);
+
+    Queen* queen = new Queen(promoted, color);
+    queen->setCoords(savedCoords.first,savedCoords.second);
+    board.push_back(queen);
+}
+
+void Engine::shortCastle(bool whosTurn)
+{
+    bool castled = false;
+    string color = (whosTurn == 0) ? "white" : "black";
+
+
+    if (color == "white")
+    {
+        for (auto king : board)
+        {
+            if (king->getName() == 'K' && king->isFirstMove() && king->getCoords() == make_pair(6,7)) castled = true;
+        }
+        if (castled)
+        {
+            for (auto rook : board)
+            {
+                if(rook->getName() == 'R' && rook->getCoords() == make_pair(7,7)) rook->setCoords(5,7);
+            }
+        }
+    }
+    else
+    {
+        for (auto king : board)
+        {
+            if (king->getName() == 'K' && king->isFirstMove() && king->getCoords() == make_pair(6,0)) castled = true;
+        }
+        if (castled)
+        {
+            for (auto rook : board)
+            {
+                if(rook->getName() == 'R' && rook->getCoords() == make_pair(7,0)) rook->setCoords(5,0);
+            }
         }
     }
 }
 
+void Engine::shortCastleCheck(bool whosTurn)
+{
+    //Adds castleing rights to king
+
+    //White coordinates to check: (4,7) (5,7) (6,7) to go (6,7)
+    //Black coordinates to check: (5,0) (6,0) to go (6,0)
+
+    string color = (whosTurn == 0) ? "white" : "black";
+
+    if (color == "white")
+    {
+        for (auto piece : board)
+        {
+            if (piece->getColor() == color && (piece->getCoords() == make_pair(5,7) ||
+                                               piece->getCoords() == make_pair(6,7))) return;
+
+
+            for (auto move : piece->getLegalMoves())
+            {
+                if (piece->getColor() != color && (move == make_pair(4,7) ||
+                                                   move == make_pair(5,7) ||
+                                                   move == make_pair(6,7))) return;
+            }
+        }
+        for (auto piece : board)
+        {
+            if (piece->getColor() == color &&
+                    piece->getName() == 'R' &&
+                    piece->getCoords() == make_pair(7,7) && !piece->isFirstMove()) return;
+
+            if (piece->getName() == 'K' && piece->isFirstMove())
+            {
+                piece->legalMoves_Add(make_pair(6,7));
+            }
+        }
+    }
+    else
+    {
+        for (auto piece : board)
+        {
+            if (piece->getColor() == color && (piece->getCoords() == make_pair(5,0) ||
+                                               piece->getCoords() == make_pair(6,0))) return;
+
+
+            for (auto move : piece->getLegalMoves())
+            {
+                if (piece->getColor() != color && (move == make_pair(4,0) ||
+                                                   move == make_pair(5,0) ||
+                                                   move == make_pair(6,0))) return;
+            }
+        }
+        for (auto piece : board)
+        {
+            if (piece->getColor() == color &&
+                    piece->getName() == 'R' &&
+                    piece->getCoords() == make_pair(7,0) && !piece->isFirstMove()) return;
+
+            if (piece->getName() == 'K' && piece->isFirstMove())
+            {
+                piece->legalMoves_Add(make_pair(6,0));
+            }
+        }
+    }
+}
+
+void Engine::longCastle(bool whosTurn)
+{
+    bool castled = false;
+    string color = (whosTurn == 0) ? "white" : "black";
+
+
+    if (color == "white")
+    {
+        for (auto king : board)
+        {
+            if (king->getName() == 'K' && king->isFirstMove() && king->getCoords() == make_pair(2,7)) castled = true;
+        }
+        if (castled)
+        {
+            for (auto rook : board)
+            {
+                if(rook->getName() == 'R' && rook->getCoords() == make_pair(0,7)) rook->setCoords(3,7);
+            }
+        }
+    }
+    else
+    {
+        for (auto king : board)
+        {
+            if (king->getName() == 'K' && king->isFirstMove() && king->getCoords() == make_pair(2,0)) castled = true;
+        }
+        if (castled)
+        {
+            for (auto rook : board)
+            {
+                if(rook->getName() == 'R' && rook->getCoords() == make_pair(0,0)) rook->setCoords(3,0);
+            }
+        }
+    }
+}
+
+void Engine::longCastleCheck(bool whosTurn)
+{
+    //Adds castleing rights to king
+
+    //White coordinates to check: (1,7) (2,7) (3,7) (4,7) to go (3,7)
+    //Black coordinates to check: (1,0) (2,0) (3,0) (4,0) to go (3,0)
+
+    string color = (whosTurn == 0) ? "white" : "black";
+
+    if (color == "white")
+    {
+        for (auto piece : board)
+        {
+            if (piece->getColor() == color && (piece->getCoords() == make_pair(1,7) ||
+                                               piece->getCoords() == make_pair(2,7) ||
+                                               piece->getCoords() == make_pair(3,7))) return;
+
+
+            for (auto move : piece->getLegalMoves())
+            {
+                if (piece->getColor() != color && (move == make_pair(1,7) ||
+                                                   move == make_pair(2,7) ||
+                                                   move == make_pair(3,7) ||
+                                                   move == make_pair(4,7))) return;
+            }
+        }
+        for (auto piece : board)
+        {
+            if (piece->getColor() == color &&
+                    piece->getName() == 'R' &&
+                    piece->getCoords() == make_pair(0,7) && !piece->isFirstMove()) return;
+
+            if (piece->getName() == 'K' && piece->isFirstMove())
+            {
+                piece->legalMoves_Add(make_pair(2,7));
+            }
+        }
+    }
+    else
+    {
+        for (auto piece : board)
+        {
+            if (piece->getColor() == color && (piece->getCoords() == make_pair(1,0) ||
+                                               piece->getCoords() == make_pair(2,0) ||
+                                               piece->getCoords() == make_pair(3,0))) return;
+
+
+            for (auto move : piece->getLegalMoves())
+            {
+                if (piece->getColor() != color && (move == make_pair(1,0) ||
+                                                   move == make_pair(2,0) ||
+                                                   move == make_pair(3,0) ||
+                                                   move == make_pair(4,0))) return;
+            }
+        }
+        for (auto piece : board)
+        {
+            if (piece->getColor() == color &&
+                    piece->getName() == 'R' &&
+                    piece->getCoords() == make_pair(0,0) && !piece->isFirstMove()) return;
+
+            if (piece->getName() == 'K' && piece->isFirstMove())
+            {
+                piece->legalMoves_Add(make_pair(2,0));
+            }
+        }
+    }
+}

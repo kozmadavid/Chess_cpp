@@ -42,7 +42,7 @@ vector<pair<int,int>> Bishop::whereCanMove() //Same as whereCanTake
 }
 
 
-void Bishop::legalMoves(Piece* selected, vector<pair<int, int>> canMoveWhere, vector<pair<int, int>> canTake, vector<Piece*> board)
+void Bishop::legalMoves(vector<pair<int, int>> canMoveWhere, vector<pair<int, int>> canTake, vector<Piece*> board)
 {
     emptyLegalMoves();
     vector<pair<int, int>> bishopDirections = {{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};

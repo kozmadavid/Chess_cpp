@@ -65,7 +65,7 @@ vector<pair<int,int>> Pawn::whereCanMove()
 }
 
 
-void Pawn::legalMoves(Piece* selected, vector<pair<int,int>>canMoveWhere, vector<pair<int,int>>canTake, vector<Piece*> board)
+void Pawn::legalMoves(vector<pair<int,int>>canMoveWhere, vector<pair<int,int>>canTake, vector<Piece*> board)
 {
     emptyLegalMoves();
     for (int i = canMoveWhere.size() - 1; i >= 0; i--)
@@ -82,8 +82,8 @@ void Pawn::legalMoves(Piece* selected, vector<pair<int,int>>canMoveWhere, vector
 
     if (isFirstMove())
         {
-            int x = selected->getCoords().first;
-            int y = selected->getCoords().second;
+            int x = getCoords().first;
+            int y = getCoords().second;
 
             if (getColor() == "white" && y - 2 >= 0)
             {

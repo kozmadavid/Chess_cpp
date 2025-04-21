@@ -19,10 +19,19 @@ public:
     void removePiece(Piece*);
     void removeInvalidMoves(vector<Piece*>&board,bool whosTurn);
     vector<pair<int,int>> getLegalMoves(Piece* selected);
+
     bool isCheck(bool whosTurn,const vector<Piece*>& customBoard);
     bool isCheckmate(bool whosTurn);
+
     bool isTakingAttackingPiece(Piece* piece, pair<int, int> attackMove, Piece* king);
-    void promotion(vector<Piece*> board);
+
+    bool isPromotion(vector<Piece*> board);
+    void promotion(Piece* pawn, char promoted);
+
+    void shortCastle(bool whosTurn);
+    void shortCastleCheck(bool whosTurn);
+    void longCastle(bool whosTurn);
+    void longCastleCheck(bool whosTurn);
 private:
     vector<Piece*> board;
 };
