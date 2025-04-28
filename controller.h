@@ -18,10 +18,13 @@ private:
     genv::event ev;
 
     bool whosTurn = 0; //0-white 1-black
-    Piece* selectedPiece(vector<Piece*> board);
+    Piece* selectedPiece(const vector<Piece*> &board);
     Piece* selected;
     pair<int, int> clickedCell();
     bool isThereSelected = false;
+
+    bool isCheckmate(vector<Piece*> board);
+    bool isDraw(vector<Piece*> board);
 };
 
 #endif // CONTROLLER_H

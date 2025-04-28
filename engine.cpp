@@ -36,7 +36,6 @@ Engine::Engine()
         }
     }
 
-
     //Bishops
     Bishop* white_bishop_b = new Bishop('B', "white");
     white_bishop_b->setCoords(2,7);
@@ -158,7 +157,6 @@ bool Engine::isCheck(bool whosTurn, const vector<Piece*>& customBoard)
 
     return false;
 }
-
 
 
 void Engine::removeInvalidMoves(vector<Piece*>& board, bool whosTurn)
@@ -320,19 +318,20 @@ void Engine::shortCastle(bool whosTurn)
 {
     bool castled = false;
     string color = (whosTurn == 0) ? "white" : "black";
+    int rank = (color == "white") ? 7 : 0;
 
 
     if (color == "white")
     {
         for (auto king : board)
         {
-            if (king->getName() == 'K' && king->isFirstMove() && king->getCoords() == make_pair(6,7)) castled = true;
+            if (king->getName() == 'K' && king->isFirstMove() && king->getCoords() == make_pair(6,rank)) castled = true;
         }
         if (castled)
         {
             for (auto rook : board)
             {
-                if(rook->getName() == 'R' && rook->getCoords() == make_pair(7,7)) rook->setCoords(5,7);
+                if(rook->getName() == 'R' && rook->getCoords() == make_pair(7,rank)) rook->setCoords(5,rank);
             }
         }
     }
@@ -340,13 +339,13 @@ void Engine::shortCastle(bool whosTurn)
     {
         for (auto king : board)
         {
-            if (king->getName() == 'K' && king->isFirstMove() && king->getCoords() == make_pair(6,0)) castled = true;
+            if (king->getName() == 'K' && king->isFirstMove() && king->getCoords() == make_pair(6,rank)) castled = true;
         }
         if (castled)
         {
             for (auto rook : board)
             {
-                if(rook->getName() == 'R' && rook->getCoords() == make_pair(7,0)) rook->setCoords(5,0);
+                if(rook->getName() == 'R' && rook->getCoords() == make_pair(7,rank)) rook->setCoords(5,rank);
             }
         }
     }
@@ -356,35 +355,33 @@ void Engine::shortCastleCheck(bool whosTurn)
 {
     //Adds castleing rights to king
 
-    //White coordinates to check: (4,7) (5,7) (6,7) to go (6,7)
-    //Black coordinates to check: (5,0) (6,0) to go (6,0)
-
     string color = (whosTurn == 0) ? "white" : "black";
+    int rank = (color == "white") ? 7 : 0;
 
     if (color == "white")
     {
         for (auto piece : board)
         {
-            if (piece->getColor() == color && (piece->getCoords() == make_pair(5,7) ||
-                                               piece->getCoords() == make_pair(6,7))) return;
+            if (piece->getColor() == color && (piece->getCoords() == make_pair(5,rank) ||
+                                               piece->getCoords() == make_pair(6,rank))) return;
 
 
             for (auto move : piece->getLegalMoves())
             {
-                if (piece->getColor() != color && (move == make_pair(4,7) ||
-                                                   move == make_pair(5,7) ||
-                                                   move == make_pair(6,7))) return;
+                if (piece->getColor() != color && (move == make_pair(4,rank) ||
+                                                   move == make_pair(5,rank) ||
+                                                   move == make_pair(6,rank))) return;
             }
         }
         for (auto piece : board)
         {
             if (piece->getColor() == color &&
                     piece->getName() == 'R' &&
-                    piece->getCoords() == make_pair(7,7) && !piece->isFirstMove()) return;
+                    piece->getCoords() == make_pair(7,rank) && !piece->isFirstMove()) return;
 
             if (piece->getName() == 'K' && piece->isFirstMove())
             {
-                piece->legalMoves_Add(make_pair(6,7));
+                piece->legalMoves_Add(make_pair(6,rank));
             }
         }
     }
@@ -392,26 +389,26 @@ void Engine::shortCastleCheck(bool whosTurn)
     {
         for (auto piece : board)
         {
-            if (piece->getColor() == color && (piece->getCoords() == make_pair(5,0) ||
-                                               piece->getCoords() == make_pair(6,0))) return;
+            if (piece->getColor() == color && (piece->getCoords() == make_pair(5,rank) ||
+                                               piece->getCoords() == make_pair(6,rank))) return;
 
 
             for (auto move : piece->getLegalMoves())
             {
-                if (piece->getColor() != color && (move == make_pair(4,0) ||
-                                                   move == make_pair(5,0) ||
-                                                   move == make_pair(6,0))) return;
+                if (piece->getColor() != color && (move == make_pair(4,rank) ||
+                                                   move == make_pair(5,rank) ||
+                                                   move == make_pair(6,rank))) return;
             }
         }
         for (auto piece : board)
         {
             if (piece->getColor() == color &&
                     piece->getName() == 'R' &&
-                    piece->getCoords() == make_pair(7,0) && !piece->isFirstMove()) return;
+                    piece->getCoords() == make_pair(7,rank) && !piece->isFirstMove()) return;
 
             if (piece->getName() == 'K' && piece->isFirstMove())
             {
-                piece->legalMoves_Add(make_pair(6,0));
+                piece->legalMoves_Add(make_pair(6,rank));
             }
         }
     }
@@ -421,19 +418,20 @@ void Engine::longCastle(bool whosTurn)
 {
     bool castled = false;
     string color = (whosTurn == 0) ? "white" : "black";
+    int rank = (color == "white") ? 7 : 0;
 
 
     if (color == "white")
     {
         for (auto king : board)
         {
-            if (king->getName() == 'K' && king->isFirstMove() && king->getCoords() == make_pair(2,7)) castled = true;
+            if (king->getName() == 'K' && king->isFirstMove() && king->getCoords() == make_pair(2,rank)) castled = true;
         }
         if (castled)
         {
             for (auto rook : board)
             {
-                if(rook->getName() == 'R' && rook->getCoords() == make_pair(0,7)) rook->setCoords(3,7);
+                if(rook->getName() == 'R' && rook->getCoords() == make_pair(0,rank)) rook->setCoords(3,rank);
             }
         }
     }
@@ -441,13 +439,13 @@ void Engine::longCastle(bool whosTurn)
     {
         for (auto king : board)
         {
-            if (king->getName() == 'K' && king->isFirstMove() && king->getCoords() == make_pair(2,0)) castled = true;
+            if (king->getName() == 'K' && king->isFirstMove() && king->getCoords() == make_pair(2,rank)) castled = true;
         }
         if (castled)
         {
             for (auto rook : board)
             {
-                if(rook->getName() == 'R' && rook->getCoords() == make_pair(0,0)) rook->setCoords(3,0);
+                if(rook->getName() == 'R' && rook->getCoords() == make_pair(0,rank)) rook->setCoords(3,rank);
             }
         }
     }
@@ -457,37 +455,35 @@ void Engine::longCastleCheck(bool whosTurn)
 {
     //Adds castleing rights to king
 
-    //White coordinates to check: (1,7) (2,7) (3,7) (4,7) to go (3,7)
-    //Black coordinates to check: (1,0) (2,0) (3,0) (4,0) to go (3,0)
-
     string color = (whosTurn == 0) ? "white" : "black";
+    int rank = (color == "white") ? 7 : 0;
 
     if (color == "white")
     {
         for (auto piece : board)
         {
-            if (piece->getColor() == color && (piece->getCoords() == make_pair(1,7) ||
-                                               piece->getCoords() == make_pair(2,7) ||
-                                               piece->getCoords() == make_pair(3,7))) return;
+            if (piece->getColor() == color && (piece->getCoords() == make_pair(1,rank) ||
+                                               piece->getCoords() == make_pair(2,rank) ||
+                                               piece->getCoords() == make_pair(3,rank))) return;
 
 
             for (auto move : piece->getLegalMoves())
             {
-                if (piece->getColor() != color && (move == make_pair(1,7) ||
-                                                   move == make_pair(2,7) ||
-                                                   move == make_pair(3,7) ||
-                                                   move == make_pair(4,7))) return;
+                if (piece->getColor() != color && (move == make_pair(1,rank) ||
+                                                   move == make_pair(2,rank) ||
+                                                   move == make_pair(3,rank) ||
+                                                   move == make_pair(4,rank))) return;
             }
         }
         for (auto piece : board)
         {
             if (piece->getColor() == color &&
                     piece->getName() == 'R' &&
-                    piece->getCoords() == make_pair(0,7) && !piece->isFirstMove()) return;
+                    piece->getCoords() == make_pair(0,rank) && !piece->isFirstMove()) return;
 
             if (piece->getName() == 'K' && piece->isFirstMove())
             {
-                piece->legalMoves_Add(make_pair(2,7));
+                piece->legalMoves_Add(make_pair(2,rank));
             }
         }
     }
@@ -495,28 +491,28 @@ void Engine::longCastleCheck(bool whosTurn)
     {
         for (auto piece : board)
         {
-            if (piece->getColor() == color && (piece->getCoords() == make_pair(1,0) ||
-                                               piece->getCoords() == make_pair(2,0) ||
-                                               piece->getCoords() == make_pair(3,0))) return;
+            if (piece->getColor() == color && (piece->getCoords() == make_pair(1,rank) ||
+                                               piece->getCoords() == make_pair(2,rank) ||
+                                               piece->getCoords() == make_pair(3,rank))) return;
 
 
             for (auto move : piece->getLegalMoves())
             {
-                if (piece->getColor() != color && (move == make_pair(1,0) ||
-                                                   move == make_pair(2,0) ||
-                                                   move == make_pair(3,0) ||
-                                                   move == make_pair(4,0))) return;
+                if (piece->getColor() != color && (move == make_pair(1,rank) ||
+                                                   move == make_pair(2,rank) ||
+                                                   move == make_pair(3,rank) ||
+                                                   move == make_pair(4,rank))) return;
             }
         }
         for (auto piece : board)
         {
             if (piece->getColor() == color &&
                     piece->getName() == 'R' &&
-                    piece->getCoords() == make_pair(0,0) && !piece->isFirstMove()) return;
+                    piece->getCoords() == make_pair(0,rank) && !piece->isFirstMove()) return;
 
             if (piece->getName() == 'K' && piece->isFirstMove())
             {
-                piece->legalMoves_Add(make_pair(2,0));
+                piece->legalMoves_Add(make_pair(2,rank));
             }
         }
     }

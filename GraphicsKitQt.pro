@@ -5,17 +5,22 @@ CONFIG -= qt
 
 SOURCES += \
         bishop.cpp \
+        boardwidget.cpp \
         controller.cpp \
         engine.cpp \
         gui.cpp \
+        highlightwidget.cpp \
         king.cpp \
         knight.cpp \
         main.cpp \
         graphics/graphics.cpp \
+        movehintwidget.cpp \
         pawn.cpp \
         piece.cpp \
+        piecewidget.cpp \
         queen.cpp \
-        rook.cpp
+        rook.cpp \
+        widget.cpp
 
 
 INCLUDEPATH += $$PWD/.
@@ -35,13 +40,17 @@ DEPENDPATH += $$PWD/SDL2
 
 HEADERS += \
     bishop.h \
+    boardwidget.h \
     controller.h \
     engine.h \
     gui.h \
+    highlightwidget.h \
     king.h \
     knight.h \
-    knight.h \
+    movehintwidget.h \
     pawn.h \
     piece.h \
+    piecewidget.h \
     queen.h \
-    rook.h
+    rook.h \
+    widget.h

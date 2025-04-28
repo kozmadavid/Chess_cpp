@@ -4,6 +4,8 @@
 using namespace genv;
 using namespace std;
 
+const int CELL_SIZE = 100;
+
 Controller::Controller(){}
 
 void Controller::start()
@@ -13,7 +15,7 @@ void Controller::start()
 
     while (gin >> ev && ev.keycode != key_escape)
     {
-        gui.drawBoard(board);
+        gui.drawBoard(board,CELL_SIZE);
 
         for (auto piece : board)
             piece->legalMoves(piece->whereCanMove(), piece->canTake(), board);
@@ -22,13 +24,14 @@ void Controller::start()
         engine.shortCastleCheck(whosTurn);
         engine.longCastleCheck(whosTurn);
 
-        if (engine.isCheckmate(whosTurn) && engine.isCheck(whosTurn, board))
+        if (isCheckmate(board))
         {
-             cout << "checkmate";
-             //gui.drawEnd();
+            cout << "checkmate";
+            //gui.drawEnd();
         }
 
-        if (engine.isCheckmate(whosTurn) && !engine.isCheck(whosTurn, board))
+
+        if (isDraw(board))
         {
             cout << "draw";
             //gui.drawEnd();
@@ -114,27 +117,26 @@ void Controller::start()
 
         if (isThereSelected)
         {
-            gui.drawSelected(selected);
-            gui.drawSelectedMoves(selectedLegalMoves);
+            gui.setSelectedPiece(selected);
+            gui.drawHighlight(CELL_SIZE);
+            gui.drawSelectedMoves(CELL_SIZE);
         }
 
         gout.refresh();
     }
 }
 
-Piece* Controller::selectedPiece(vector<Piece*> board)
+Piece* Controller::selectedPiece(const vector<Piece*>& board)
 {
-    int cellSize = 100;
-
     if (ev.button == btn_left)
     {
         for (auto piece : board)
         {
-            int piece_x = piece->getCoords().first * cellSize;
-            int piece_y = piece->getCoords().second * cellSize;
+            int piece_x = piece->getCoords().first * CELL_SIZE;
+            int piece_y = piece->getCoords().second * CELL_SIZE;
 
-            if (ev.pos_x >= piece_x && ev.pos_x < piece_x + cellSize &&
-                ev.pos_y >= piece_y && ev.pos_y < piece_y + cellSize)
+            if (ev.pos_x >= piece_x && ev.pos_x < piece_x + CELL_SIZE &&
+                ev.pos_y >= piece_y && ev.pos_y < piece_y + CELL_SIZE)
             {
                 return piece;
             }
@@ -145,10 +147,20 @@ Piece* Controller::selectedPiece(vector<Piece*> board)
 
 pair<int, int> Controller::clickedCell()
 {
-    int cellSize = 100;
-
-    int column = ev.pos_x / cellSize;
-    int row = ev.pos_y / cellSize;
+    int column = ev.pos_x / CELL_SIZE;
+    int row = ev.pos_y / CELL_SIZE;
 
     return make_pair(column, row);
+}
+
+bool Controller::isCheckmate(vector<Piece*> board)
+{
+    if (engine.isCheckmate(whosTurn) && engine.isCheck(whosTurn, board)) return true;
+    return false;
+}
+
+bool Controller::isDraw(vector<Piece*> board)
+{
+    if (engine.isCheckmate(whosTurn) && !engine.isCheck(whosTurn, board)) return true;
+    return false;
 }

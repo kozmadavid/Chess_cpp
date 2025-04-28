@@ -1,27 +1,40 @@
-#ifndef GUI_H
-#define GUI_H
+#ifndef GUI_HPP
+#define GUI_HPP
 
+#include "graphics.hpp"
+#include "widget.h"
 #include "piece.h"
+#include "boardwidget.h"
+#include "piecewidget.h"
+#include "movehintwidget.h"
+#include "highlightwidget.h"
 #include <vector>
 
-using namespace std;
+const int XX = 800;
+const int YY = 800;
 
-struct Pixel
-{
-    int x,y,r,g,b;
-};
+class GUI {
+private:
+    std::vector<Widget*> widgets;
+    Piece* selectedPiece = nullptr;
 
+    void addWidget(Widget* widget) { widgets.push_back(widget); }
 
-class GUI
-{
+    void draw() const {
+        for (auto widget : widgets) {
+            widget->draw();
+        }
+    }
+
 public:
-    GUI();
-    void drawBoard(vector<Piece*>);
-    void drawSelected(Piece*);
-    void drawPieces(vector<Piece*>);
-    void drawSelectedMoves(vector<pair<int,int>>);
-    vector<Pixel> readImage(const string&);
-    vector<Pixel> loadPieceImage(const string&);
+    GUI() { genv::gout.open(XX,YY); }
+
+    ~GUI() { for (auto widget : widgets) delete widget; }
+
+    void drawBoard(const std::vector<Piece*>& board, int cell_size);
+    void setSelectedPiece(Piece* selected);
+    void drawSelectedMoves(int cell_size);
+    void drawHighlight(int cell_size);
 };
 
-#endif // GUI_H
+#endif // GUI_HPP
