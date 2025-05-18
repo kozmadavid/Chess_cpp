@@ -9,8 +9,8 @@ class BoardWidget : public Widget {
     std::vector<Piece*> board;
 
 public:
-    BoardWidget(int x, int y, int cell_size, const std::vector<Piece*>& board)
-        : Widget(x, y, cell_size * 8, cell_size * 8), board(board) {}
+    BoardWidget(int x, int y, int cell_size)
+        : Widget(x, y, cell_size * 8, cell_size * 8) {}
 
     void draw() const override;
 };

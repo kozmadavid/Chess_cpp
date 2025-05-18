@@ -5,8 +5,8 @@
 
 using namespace genv;
 
-PieceWidget::PieceWidget(int x, int y, int cell_size, const std::vector<Piece*>& pieces)
-    : Widget(x, y, cell_size * 8, cell_size * 8), pieces(pieces) {}
+PieceWidget::PieceWidget(int x, int y, int cell_size, const std::vector<Piece*>& board)
+    : Widget(x, y, cell_size * 8, cell_size * 8), pieces(board) {}
 
 
 std::map<std::string, std::vector<Pixel>> PieceWidget::images;

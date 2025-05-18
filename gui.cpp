@@ -1,41 +1,86 @@
 #include "gui.h"
+#include <algorithm>
 
-void GUI::drawBoard(const std::vector<Piece*>& board, int cell_size)
+
+void GUI::loadMenu()
 {
-    for (auto widget : widgets) delete widget;
-    widgets.clear();
-
-    BoardWidget* boardWidget = new BoardWidget(0, 0, cell_size, board);
-    addWidget(boardWidget);
-
-    PieceWidget* pieceWidget = new PieceWidget(0, 0, cell_size, board);
-    addWidget(pieceWidget);
-
-    draw();
+    addMenuWidget(menu);
+    addMenuWidget(start);
+    addMenuWidget(exit);
 }
 
-
-void GUI::drawSelectedMoves(int cell_size)
+void GUI::loadBoard()
 {
-    if (selectedPiece == nullptr) return;
-
-    std::vector<std::pair<int, int>> moves = selectedPiece->getLegalMoves();
-
-    MoveHintWidget* hintWidget = new MoveHintWidget(moves, cell_size);
-    addWidget(hintWidget);
-
-    draw();
+    addBoardWidget(boardWidget);
 }
 
-void GUI::drawHighlight(int cell_size)
+void GUI::setPieces(std::vector<Piece*>& board)
 {
-    highlightwidget* highlightSelected = new highlightwidget(selectedPiece, cell_size);
-    addWidget(highlightSelected);
+    pieces = board;
 
-    draw();
+    if (pieceWidget)
+    {
+        auto it = std::remove(boardWidgets.begin(), boardWidgets.end(), pieceWidget);
+        boardWidgets.erase(it, boardWidgets.end());
+
+        delete pieceWidget;
+        pieceWidget = nullptr;
+    }
+    pieceWidget = new PieceWidget(0, 0, cell_size, pieces);
+    addBoardWidget(pieceWidget);
 }
+
 
 void GUI::setSelectedPiece(Piece* piece)
 {
+    if (highlightSelected)
+    {
+        auto it = std::remove(boardWidgets.begin(), boardWidgets.end(), highlightSelected);
+        boardWidgets.erase(it, boardWidgets.end());
+
+        auto it2 = std::remove(boardWidgets.begin(), boardWidgets.end(), moveHint);
+        boardWidgets.erase(it2, boardWidgets.end());
+
+        delete highlightSelected;
+        delete moveHint;
+        highlightSelected = nullptr;
+        moveHint = nullptr;
+    }
+
     selectedPiece = piece;
+
+    if (selectedPiece)
+    {
+        highlightSelected = new highlightwidget(selectedPiece, cell_size);
+        addBoardWidget(highlightSelected);
+
+        moveHint = new MoveHintWidget(selectedPiece->getLegalMoves(), cell_size);
+
+        auto it = std::remove(boardWidgets.begin(), boardWidgets.end(), moveHint);
+        boardWidgets.erase(it, boardWidgets.end());
+
+        boardWidgets.push_back(moveHint);
+    }
+}
+
+void GUI::drawMenu()
+{
+    for (auto widget : menuWidgets) widget->draw();
+}
+
+void GUI::drawBoardContents()
+{
+    if (boardWidget) boardWidget->draw();
+
+    for (auto widget : boardWidgets) if (dynamic_cast<PieceWidget*>(widget) != nullptr) widget->draw();
+
+    if (highlightSelected) highlightSelected->draw();
+
+    if (moveHint) moveHint->draw();
+}
+
+
+void GUI::getWidgetNum()
+{
+    std::cout << boardWidgets.size() << std::endl;
 }

@@ -6,7 +6,11 @@ using namespace std;
 
 const int CELL_SIZE = 100;
 
-Controller::Controller(){}
+Controller::Controller()
+{
+    gui.loadMenu();
+    gui.loadBoard();
+}
 
 void Controller::start()
 {
@@ -15,116 +19,145 @@ void Controller::start()
 
     while (gin >> ev && ev.keycode != key_escape)
     {
-        gui.drawBoard(board,CELL_SIZE);
-
-        for (auto piece : board)
-            piece->legalMoves(piece->whereCanMove(), piece->canTake(), board);
-
-        engine.removeInvalidMoves(board, whosTurn);
-        engine.shortCastleCheck(whosTurn);
-        engine.longCastleCheck(whosTurn);
-
-        if (isCheckmate(board))
+        if (isMenu)
         {
-            cout << "checkmate";
-            //gui.drawEnd();
+            gui.drawMenu();
+            gout.refresh();
         }
-
-
-        if (isDraw(board))
+        else
         {
-            cout << "draw";
-            //gui.drawEnd();
-        }
+            gui.setPieces(board);
+            gui.drawBoardContents();
+            gout.refresh();
 
-        if ((selectedPiece(board) != nullptr && whosTurn == 0 && selectedPiece(board)->getColor() == "white") ||
-            (selectedPiece(board) != nullptr && whosTurn == 1 && selectedPiece(board)->getColor() == "black"))
-        {
-            selected = selectedPiece(board);
-            isThereSelected = true;
-        }
+            for (auto piece : board)
+                piece->legalMoves(piece->whereCanMove(), piece->canTake(), board);
 
-        if (isThereSelected && ev.button == btn_left)
-        {
-            selectedLegalMoves = engine.getLegalMoves(selected);
+            engine.removeInvalidMoves(board, whosTurn);
+            engine.shortCastleCheck(whosTurn);
+            engine.longCastleCheck(whosTurn);
 
-            for (auto move : selectedLegalMoves)
+            if (isCheckmate(board))
             {
-                if (clickedCell() == move)
+                cout << "checkmate";
+            }
+
+            if (isDraw(board))
+            {
+                cout << "draw";
+            }
+
+            if (isThereSelected && ev.button == btn_left)
+            {
+                selectedLegalMoves = engine.getLegalMoves(selected);
+                bool moved = false;
+
+                for (auto move : selectedLegalMoves)
                 {
-                    pair<int,int> originalCoords = selected->getCoords();
-                    Piece* capturedPiece = nullptr;
-
-                    for (int i = 0; i < board.size(); i++)
+                    if (clickedCell() == move)
                     {
-                        if (move == board[i]->getCoords())
+                        pair<int,int> originalCoords = selected->getCoords();
+                        Piece* capturedPiece = nullptr;
+
+                        for (int i = 0; i < board.size(); i++)
                         {
-                            capturedPiece = board[i];
-                            break;
+                            if (move == board[i]->getCoords())
+                            {
+                                capturedPiece = board[i];
+                                break;
+                            }
                         }
+
+                        selected->setCoords(move.first, move.second);
+
+                        bool shouldSwitchTurn = true;
+
+                        if (capturedPiece)
+                        {
+                            if (capturedPiece->getColor() != selected->getColor())
+                            {
+                                engine.removePiece(capturedPiece);
+                            }
+                            else
+                            {
+                                capturedPiece = nullptr;
+                                shouldSwitchTurn = false;
+                            }
+                        }
+
+                        bool stillInCheck = engine.isCheck(whosTurn, board);
+
+                        selected->setCoords(originalCoords.first, originalCoords.second);
+
+                        if (capturedPiece) board.push_back(capturedPiece);
+
+                        if (!stillInCheck)
+                        {
+                            if (capturedPiece) engine.removePiece(capturedPiece);
+
+                            selected->setCoords(clickedCell().first, clickedCell().second);
+
+                            if (engine.isPromotion(board))
+                            {
+                                engine.promotion(selected, 'Q');
+                            }
+
+                            engine.shortCastle(whosTurn);
+                            engine.longCastle(whosTurn);
+
+                            isThereSelected = false;
+                            gui.setSelectedPiece(nullptr);
+
+                            if (shouldSwitchTurn)
+                            {
+                                whosTurn = !whosTurn;
+                            }
+
+                            if (selected->getName() == 'P' || selected->getName() == 'K' || selected->getName() == 'R')
+                                selected->setFirstMoveFalse();
+                        }
+                        moved = true;
+                        break;
                     }
+                }
 
-                    selected->setCoords(move.first, move.second);
-
-                    bool shouldSwitchTurn = true;
-
-                    if (capturedPiece)
+                if (!moved)
+                {
+                    Piece* clickedPiece = selectedPiece(board);
+                    if (clickedPiece != nullptr && clickedPiece->getColor() == (whosTurn == 0 ? "white" : "black"))
                     {
-                        if (capturedPiece->getColor() != selected->getColor())
-                        {
-                            engine.removePiece(capturedPiece);
-                        }
-                        else
-                        {
-                            capturedPiece = nullptr;
-                            shouldSwitchTurn = false;
-                        }
+                        selected = clickedPiece;
+                        isThereSelected = true;
+                        gui.setSelectedPiece(selected);
                     }
-
-                    bool stillInCheck = engine.isCheck(whosTurn, board);
-
-                    selected->setCoords(originalCoords.first, originalCoords.second);
-
-                    if (capturedPiece) board.push_back(capturedPiece);
-
-                    if (!stillInCheck)
+                    else
                     {
-                        if (capturedPiece) engine.removePiece(capturedPiece);
-
-                        selected->setCoords(clickedCell().first, clickedCell().second);
-
-                        if (engine.isPromotion(board))
-                        {
-                            engine.promotion(selected, 'Q');
-                        }
-
-                        engine.shortCastle(whosTurn);
-                        engine.longCastle(whosTurn);
-
+                        selected = nullptr;
                         isThereSelected = false;
-
-                        if (shouldSwitchTurn)
-                        {
-                            whosTurn = !whosTurn;
-                        }
-
-                        if (selected->getName() == 'P' || selected->getName() == 'K' || selected->getName() == 'R')
-                            selected->setFirstMoveFalse();
+                        gui.setSelectedPiece(nullptr);
                     }
                 }
             }
+            else if (ev.button == btn_left)
+            {
+                Piece* clickedPiece = selectedPiece(board);
+                if (clickedPiece != nullptr && clickedPiece->getColor() == (whosTurn == 0 ? "white" : "black"))
+                {
+                    selected = clickedPiece;
+                    isThereSelected = true;
+                    gui.setSelectedPiece(selected);
+                }
+                else
+                {
+                    selected = nullptr;
+                    isThereSelected = false;
+                    gui.setSelectedPiece(nullptr);
+                }
+            }
         }
-
-        if (isThereSelected)
-        {
-            gui.setSelectedPiece(selected);
-            gui.drawHighlight(CELL_SIZE);
-            gui.drawSelectedMoves(CELL_SIZE);
-        }
-
-        gout.refresh();
     }
 }
+
 
 Piece* Controller::selectedPiece(const vector<Piece*>& board)
 {

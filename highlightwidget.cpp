@@ -19,4 +19,3 @@ void highlightwidget::draw() const {
          << line_to(x - 1, y + height - 1)
          << line_to(x - 1, y - 1);
 }
-
