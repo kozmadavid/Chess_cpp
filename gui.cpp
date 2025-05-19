@@ -14,6 +14,11 @@ void GUI::loadBoard()
     addBoardWidget(boardWidget);
 }
 
+void GUI::loadEndSreen(std::string label)
+{
+    endScreen = new EndScreenWidget(0, 0, cell_size,label);
+}
+
 void GUI::setPieces(std::vector<Piece*>& board)
 {
     pieces = board;
@@ -79,8 +84,37 @@ void GUI::drawBoardContents()
     if (moveHint) moveHint->draw();
 }
 
-
-void GUI::getWidgetNum()
+void GUI::drawEndScreen()
 {
-    std::cout << boardWidgets.size() << std::endl;
+    endScreen->draw();
+}
+
+void GUI::handleMouse(int mx, int my, bool click)
+{
+    start->handle(mx, my, click);
+    exit->handle(mx, my, click);
+
+    if (start->isPressed()) startPressed = true;
+    if (exit->isPressed())  exitPressed = true;
+
+}
+
+bool GUI::isStartPressed()
+{
+    if (startPressed)
+    {
+        startPressed = false;
+        return true;
+    }
+    return false;
+}
+
+bool GUI::isExitPressed()
+{
+    if (exitPressed)
+    {
+        exitPressed = false;
+        return true;
+    }
+    return false;
 }

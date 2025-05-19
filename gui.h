@@ -8,6 +8,7 @@
 #include "movehintwidget.h"
 #include "highlightwidget.h"
 #include "menuwidget.h"
+#include "endscreenwidget.h"
 #include "button.h"
 #include <vector>
 
@@ -17,6 +18,9 @@ const int YY = 800;
 class GUI
 {
 private:
+    bool startPressed = false;
+    bool exitPressed = false;
+
     std::vector<Widget*> menuWidgets;
     std::vector<Widget*> boardWidgets;
     std::vector<Piece*> pieces;
@@ -34,6 +38,7 @@ private:
     menuwidget* menu = new menuwidget(0, 0, cell_size);
     Button* start = new Button(325, 400, 150, 40, "Start");
     Button* exit = new Button(325, 470, 150, 40, "Exit");
+    EndScreenWidget* endScreen = nullptr;
 
     //BOARD CONTENTS
     BoardWidget* boardWidget = new BoardWidget(0, 0, cell_size);
@@ -49,6 +54,7 @@ public:
              for (auto widget : boardWidgets) delete widget;
            }
 
+    void handleMouse(int mx, int my, bool click);
     void setPieces(std::vector<Piece*>&board);
 
     void setSelectedPiece(Piece* selected);
@@ -59,6 +65,12 @@ public:
 
     void loadBoard();
     void drawBoardContents();
+
+    void loadEndSreen(std::string);
+    void drawEndScreen();
+
+    bool isStartPressed();
+    bool isExitPressed();
 
     void getWidgetNum();
 };

@@ -18,6 +18,8 @@ private:
     genv::event ev;
 
     bool isMenu = 1;
+    bool isGameOver = 0;
+
     bool whosTurn = 0; //0-white 1-black
     Piece* selectedPiece(const vector<Piece*> &board); //Picks and gives selected piece to controller
     Piece* selected;

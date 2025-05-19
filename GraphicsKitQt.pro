@@ -9,6 +9,7 @@ SOURCES += \
     boardwidget.cpp \
     button.cpp \
     controller.cpp \
+    endscreenwidget.cpp \
     engine.cpp \
     gui.cpp \
     highlightwidget.cpp \
@@ -30,6 +31,7 @@ HEADERS += \
     boardwidget.h \
     button.h \
     controller.h \
+    endscreenwidget.h \
     engine.h \
     gui.h \
     highlightwidget.h \

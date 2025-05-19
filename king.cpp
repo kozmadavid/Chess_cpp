@@ -1,6 +1,5 @@
 #include "king.h"
 #include "engine.h"
-
 #include <iostream>
 #include <algorithm>
 
